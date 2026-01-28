@@ -30,19 +30,15 @@ export default async function CalibrationPage() {
   };
 
   return (
-    <div id='calibration-page' className='container mx-auto max-w-4xl p-6'>
-      <div className='space-y-6'>
-        <div>
-          <h1 className='text-3xl font-bold text-zinc-900 dark:text-zinc-50'>
-            Calibration
-          </h1>
-          <p className='mt-2 text-sm text-zinc-600 dark:text-zinc-400'>
-            Configure your profile and working preferences
-          </p>
-        </div>
-
-        <CalibrationForm profile={profileData} />
+    <div id='calibration-page' className='space-y-6'>
+      <div>
+        <h1 className='text-3xl font-bold text-foreground'>Calibration</h1>
+        <p className='mt-2 text-sm text-muted-foreground'>
+          Configure your profile and working preferences
+        </p>
       </div>
+
+      <CalibrationForm profile={profileData} />
     </div>
   );
 }

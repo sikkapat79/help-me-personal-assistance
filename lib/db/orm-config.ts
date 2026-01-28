@@ -25,8 +25,6 @@ export function getOrmConfig(): Options {
     migrations: {
       path: 'lib/db/migrations',
     },
-    // Vercel/serverless-friendly defaults:
-    // - keep debug off by default
-    debug: true,
+    debug: process.env.NODE_ENV !== 'production',
   } satisfies Options);
 }

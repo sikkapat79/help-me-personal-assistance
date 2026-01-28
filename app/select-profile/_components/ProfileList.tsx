@@ -7,19 +7,31 @@ import {
   formatTimeFromMinutes,
 } from '@/lib/features/profile/types';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/lib/hooks/use-toast';
 
 interface ProfileListProps {
-  profiles: UserProfileData[];
+  readonly profiles: UserProfileData[];
 }
 
 export function ProfileList({ profiles }: ProfileListProps) {
   const [isPending, startTransition] = useTransition();
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
+  const toast = useToast();
 
   const handleSelect = (profileId: string) => {
+    const profile = profiles.find((p) => p.id === profileId);
     setSelectedId(profileId);
     startTransition(async () => {
-      await selectProfileAction(profileId);
+      const result = await selectProfileAction(profileId);
+      if (result.ok) {
+        toast.success('Profile selected', {
+          description: `Switched to ${profile?.displayName || 'profile'}.`,
+        });
+      } else {
+        toast.error('Failed to select profile', {
+          description: result.error?.message || 'Could not switch profiles.',
+        });
+      }
     });
   };
 
@@ -28,20 +40,18 @@ export function ProfileList({ profiles }: ProfileListProps) {
       {profiles.map((profile) => (
         <div
           key={profile.id}
-          className='rounded-lg border border-zinc-200 bg-white p-6 shadow-sm transition-all hover:border-indigo-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-indigo-700'
+          className='rounded-lg border border-border bg-card p-6 shadow-sm transition-all hover:border-primary/50 hover:shadow-md'
         >
-          <h3 className='text-lg font-semibold text-zinc-900 dark:text-zinc-50'>
+          <h3 className='text-lg font-semibold text-card-foreground'>
             {profile.displayName}
           </h3>
-          <p className='mt-1 text-sm text-zinc-600 dark:text-zinc-400'>
-            {profile.role}
-          </p>
+          <p className='mt-1 text-sm text-muted-foreground'>{profile.role}</p>
           {profile.bio && (
-            <p className='mt-2 text-sm text-zinc-500 dark:text-zinc-500 line-clamp-2'>
+            <p className='mt-2 text-sm text-muted-foreground line-clamp-2'>
               {profile.bio}
             </p>
           )}
-          <div className='mt-3 text-xs text-zinc-500 dark:text-zinc-500'>
+          <div className='mt-3 text-xs text-muted-foreground'>
             <p>
               Working Hours:{' '}
               {formatTimeFromMinutes(profile.workingStartMinutes)} -{' '}

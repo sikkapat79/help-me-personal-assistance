@@ -2,7 +2,7 @@ import { Entity, PrimaryKey, Property, Enum } from '@mikro-orm/core';
 
 import { PrimaryFocusPeriod } from '@/lib/features/profile/schema';
 
-@Entity()
+@Entity({ tableName: 'user_profile' })
 export class UserProfile {
   @PrimaryKey({ type: 'uuid', nullable: true })
   id!: string;

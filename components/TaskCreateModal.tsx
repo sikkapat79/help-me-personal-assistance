@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { TaskFormState } from '@/lib/features/tasks/types';
+import { useToast } from '@/lib/hooks/use-toast';
 
 const initialState: TaskFormState = {
   ok: false,
@@ -70,21 +71,35 @@ export function TaskCreateModal() {
   const [, startTransition] = useTransition();
   const lastTaskIdRef = useRef<string | undefined>(undefined);
   const formRef = useRef<HTMLFormElement>(null);
+  const toast = useToast();
 
   // Close modal on success (using ref to track previous taskId)
   useEffect(() => {
     if (!state.ok) {
+      if (state.formError) {
+        toast.error('Failed to create task', {
+          description: state.formError,
+        });
+      }
+      return;
+    }
+
+    if (lastTaskIdRef.current === state.taskId) {
       return;
     }
 
     lastTaskIdRef.current = state.taskId;
     formRef.current?.reset();
 
+    toast.success('Task created successfully', {
+      description: 'Your task has been added to the list.',
+    });
+
     startTransition(() => {
       setOpen(false);
       setIntensity(TaskIntensity.QuickWin);
     });
-  }, [state.ok, state.taskId]);
+  }, [state.ok, state.taskId, state.formError, toast]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

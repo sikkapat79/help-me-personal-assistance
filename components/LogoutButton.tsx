@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button';
 
 export function LogoutButton() {
   const [isPending, startTransition] = useTransition();
-
   const handleLogout = () => {
-    startTransition(async () => {
-      await logoutProfileAction();
+    startTransition(() => {
+      // This action clears the cookie then redirects; it doesn't return a result.
+      void logoutProfileAction();
     });
   };
 

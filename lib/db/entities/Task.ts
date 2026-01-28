@@ -3,12 +3,12 @@ import { Entity, PrimaryKey, Property, Enum, ManyToOne } from '@mikro-orm/core';
 import { TaskIntensity, TaskStatus } from '@/lib/features/tasks/schema';
 import { UserProfile } from './UserProfile';
 
-@Entity()
+@Entity({ tableName: 'task' })
 export class Task {
   @PrimaryKey({ type: 'uuid', nullable: true })
   id!: string;
 
-  @ManyToOne(() => UserProfile)
+  @ManyToOne(() => UserProfile, { fieldName: 'owner_id' })
   owner!: UserProfile;
 
   @Property({ type: 'string' })
