@@ -12,6 +12,7 @@
     "db:schema:validate": "mikro-orm schema:validate"
   },
   "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.975.0",
     "@mikro-orm/cli": "^6.6.5",
     "@mikro-orm/core": "^6.6.5",
     "@mikro-orm/migrations": "^6.6.5",
