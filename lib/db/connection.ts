@@ -1,4 +1,9 @@
-import { EntityManager, EntityTarget, Repository } from 'typeorm';
+import {
+  EntityManager,
+  EntityTarget,
+  ObjectLiteral,
+  Repository,
+} from 'typeorm';
 import { AppDataSource } from './typeorm-config';
 
 let isInitialized = false;
@@ -21,7 +26,7 @@ export async function getDataSource() {
  * @param entity - The entity class
  * @returns Repository instance for the entity
  */
-export async function getRepository<Entity>(
+export async function getRepository<Entity extends ObjectLiteral>(
   entity: EntityTarget<Entity>,
 ): Promise<Repository<Entity>> {
   const dataSource = await getDataSource();

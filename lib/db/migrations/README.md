@@ -4,21 +4,27 @@
 
 This project has been migrated from MikroORM to TypeORM. The existing database schema remains unchanged.
 
-### Old MikroORM Migrations (Reference Only)
+### Legacy Migrations
 
-The following MikroORM migration files are kept for reference:
-- `Migration20260128000000_create_task_table.ts`
-- `Migration20260128000100_add_task_status_index.ts`
-- `Migration20260128100000_add_user_profile.ts`
+The old MikroORM migration files have been removed to prevent build errors (they imported from `@mikro-orm/migrations` which is no longer installed).
 
-These migrations have already been applied to the database and should not be run again.
+The complete schema is now documented in the TypeORM migration: `1738108800000-InitialSchema.ts`
+
+### TypeORM Migrations
+
+**Current migration:**
+- `1738108800000-InitialSchema.ts` - Complete database schema (task + user_profile tables, indexes, foreign keys)
+
+This migration documents the existing schema in TypeORM format. If you run this on:
+- **Existing database**: Will detect tables already exist and mark as executed
+- **Fresh database**: Will create all tables, indexes, and constraints
 
 ### Current Database Schema
 
 The database currently has the following tables:
 - `user_profile`: User profile information
 - `task`: Task management with foreign key to user_profile
-- `typeorm_migrations`: TypeORM migration tracking table (will be created on first run)
+- `typeorm_migrations`: TypeORM migration tracking table (created automatically)
 
 ### Creating New Migrations
 
