@@ -1,0 +1,63 @@
+---
+description: HelpMe product context (energy-as-currency, rituals, pages, vocabulary)
+alwaysApply: true
+---
+
+## HelpMe product context (always apply)
+
+### Purpose
+HelpMe is a **bio-adaptive performance manager**: it synchronizes a user’s tasks with their biological reality to protect deep focus, prevent burnout, and improve follow-through.
+
+### Core philosophy
+- **Energy is a currency**: every plan must respect today’s recovery and capacity.
+- **Human-first**: the user is always in control; the AI suggests and explains.
+- **Explainability**: any prioritization/scheduling output must include “why”.
+
+### Core concepts (vocabulary)
+- **Bio-Calibration**: the morning check-in ritual.
+- **EnergyBudget**: the day’s available capacity derived from recovery signals.
+- **CurrentCapacity**: remaining capacity after work is done.
+- **CapacityState**: user feedback loop that adjusts depletion rate:
+  - `Fresh` / `Tired` / `Taxed`
+- **TaskIntensity**:
+  - `DeepFocus` (high drain)
+  - `Routine` (medium)
+  - `QuickWin` (low)
+
+### Key workflows / rituals
+- **Morning check-in (Bio-Calibration)**:
+  - user logs sleep/rest quality (1–10) and optional notes
+  - set `EnergyBudget` for today
+- **Dynamic capacity tracking**:
+  - tasks deplete `CurrentCapacity` based on intensity
+  - `CapacityState` can change depletion (user feedback loop)
+- **Evening reflection**:
+  - summarize today and capture “how it went”
+- **Tomorrow prediction**:
+  - AI predicts tomorrow’s baseline energy from trends and reflections
+
+### Product rules (how features should behave)
+- Always show **reasoning** for priorities:
+  - energy fit, urgency, impact, and intensity distribution
+- Prefer sustainable scheduling:
+  - avoid stacking many `DeepFocus` tasks in one day
+  - spread high-intensity tasks across the week (Weekly Plan)
+- Avoid “100% energy assumed” UX:
+  - always allow a low-energy fallback plan (“minimum viable day”)
+
+### Page architecture (intent + recommended routes)
+- Today (Dashboard): `app/(app)/today`
+  - morning check-in card
+  - active task list with timers
+  - evening reflection hook
+- WeeklyPlan (Strategic Horizon): `app/(app)/weekly`
+  - distribute intensity across 7 days
+  - smart schedule suggestions
+- BioTrends (Analytics): `app/(app)/trends`
+  - rest vs output correlation
+  - average deep focus hours
+- MasterList (Archive): `app/(app)/tasks`
+  - all objectives (pending + completed)
+- Calibration (Profile): `app/(app)/calibration`
+  - chronotype (peak focus hours) and working window
+

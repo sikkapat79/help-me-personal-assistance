@@ -1,3 +1,28 @@
+## What is this project?
+
+HelpMe is a Next.js application that acts as an AI personal assistant. It treats **energy as a currency** and helps you prioritize daily tasks based on your current recovery (e.g. rest quality, remaining energy) and task intensity, then produces a short, actionable plan for today.
+
+### Key features
+- Morning check-in (bio-calibration) → sets an Energy Budget for the day
+- Task intensity scoring: Deep Focus / Routine / Quick Win
+- Dynamic capacity tracking: “Fresh / Tired / Taxed” feedback adjusts depletion
+- Evening reflection + tomorrow baseline prediction
+- AI-assisted prioritization with clear reasoning
+
+### Core pages (planned)
+- Today (Dashboard)
+- Weekly Plan
+- Bio Trends
+- Master List
+- Calibration
+
+### Non-goals (for now)
+- Fully autonomous actions without confirmation
+- Calendar write access / automatic scheduling across third-party apps
+- Multi-user collaboration workflows
+
+---
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

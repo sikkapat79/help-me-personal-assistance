@@ -33,6 +33,12 @@ alwaysApply: true
   - `lib/*` provides clients + shared helpers
   - UI stays dumb (renders data, triggers actions)
 
+### Product context (HelpMe)
+- HelpMe is **human-first** and treats **energy as a currency**.
+- Prefer sustainable plans that protect deep focus and reduce burnout risk.
+- Prioritization must include short, explicit reasoning (why this, why now).
+- Avoid stacking too many `DeepFocus` tasks in one day; spread high-intensity tasks across the week when planning.
+
 ### DX conventions
 - Prefer descriptive generic type names (avoid `T`, `E` in non-trivial code).
 - Prefer `unknown` + validation over `any`.

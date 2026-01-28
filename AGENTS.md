@@ -1,5 +1,63 @@
 ## Project context (for AI + contributors)
 
+### Purpose
+HelpMe is an AI personal assistant that helps a human decide what to do next by turning daily context + tasks into a clear, bio-adaptive prioritized plan.
+
+### Core philosophy
+- **Human-first**: suggestions, not commands. The user stays in control.
+- **Energy is a currency**: planning must match biological reality to prevent burnout and protect deep focus.
+- **Explainability**: prioritization must include short, explicit reasoning.
+
+### Primary duties
+- Capture daily context (“morning check-in” / bio-calibration): sleep/rest quality and signals that inform today’s **EnergyBudget**.
+- Manage tasks: create/edit, status, due dates, intensity, and optional metadata (effort/tags).
+- Prioritize tasks: produce a ranked list with short, explicit reasoning based on energy and constraints.
+- Run a daily loop: capacity-aware execution, timers, and feedback that adapts depletion.
+- Close the day: evening reflection summary and AI-driven prediction for tomorrow’s baseline.
+
+### Scope (v1)
+In scope:
+- Single-user experience (no complex org/team features).
+- Server-side AI calls (Bedrock) + server-side persistence (Neon Postgres via Mikro-ORM).
+- Explainable prioritization output.
+
+Out of scope (for now):
+- Calendar write access / auto-scheduling that edits external calendars.
+- Complex collaboration, approvals, or enterprise workflows.
+- “Autonomous agent” actions that execute tasks without user confirmation.
+
+### Key workflows / rituals
+- **Morning check-in (Bio-Calibration)**: user logs sleep/rest quality (1–10) and optional notes → sets **EnergyBudget**.
+- **Task execution (Dynamic Capacity Tracking)**:
+  - tasks have **TaskIntensity**: `DeepFocus` / `Routine` / `QuickWin`
+  - completing tasks depletes **CurrentCapacity**
+  - user feedback state (**CapacityState**): `Fresh` / `Tired` / `Taxed` can adjust depletion rate
+- **Evening reflection**: summarize the day and capture “how it went”.
+- **Tomorrow prediction**: AI suggests tomorrow’s likely baseline energy from trends.
+
+### Domain language (preferred terms)
+- CheckIn: date, restQuality1to10, notes, energyBudget
+- Task: title, status, dueAt, intensity, effortMinutes, tags
+- Plan: date, rankedTasks, timeBlocks, reasoningSummary
+- Capacity: energyBudget, currentCapacity, capacityState (Fresh/Tired/Taxed)
+
+### Page architecture (product)
+- Today (Dashboard): morning check-in card, active task list + timers, evening reflection hook.
+- WeeklyPlan (Strategic Horizon): 7-day view with “smart schedule” to spread high-intensity tasks.
+- BioTrends (Analytics): correlate rest level and output; track average deep focus hours.
+- MasterList (Archive): all pending/completed objectives separate from daily focus.
+- Calibration (Profile): chronotype (peak focus hours) and standard working window.
+
+```mermaid
+flowchart TD
+  morningCheckIn[MorningCheckIn] --> energyBudget[EnergyBudgetSet]
+  energyBudget --> workSession[TaskExecutionWithTimers]
+  workSession --> capacity[CurrentCapacityDepletes]
+  capacity --> reflection[EveningReflection]
+  reflection --> prediction[TomorrowEnergyBaseline]
+  prediction --> morningCheckIn
+```
+
 ### Stack
 - Next.js (App Router)
 - Tailwind CSS + shadcn/ui
