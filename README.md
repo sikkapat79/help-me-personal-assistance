@@ -59,3 +59,41 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+### GitHub Actions → Vercel (Preview + Production)
+
+This repo includes a GitHub Actions workflow at `.github/workflows/vercel.yml` that:
+- Deploys **Preview** on pull requests
+- Deploys **Production** on pushes to `main`
+
+#### Required GitHub Secrets
+
+Add these in GitHub: **Settings → Secrets and variables → Actions → New repository secret**.
+- `VERCEL_TOKEN`
+- `VERCEL_ORG_ID`
+- `VERCEL_PROJECT_ID`
+
+#### One-time: link the repo to your Vercel project
+
+Run locally in the repo:
+
+```bash
+pnpm dlx vercel link
+```
+
+Then copy IDs from `.vercel/project.json`:
+- `orgId` → `VERCEL_ORG_ID`
+- `projectId` → `VERCEL_PROJECT_ID`
+
+#### App secrets (AWS/DB/etc.)
+
+The GitHub Actions workflow only needs the Vercel deploy secrets above. Your **runtime** secrets (AWS/Bedrock, database URL, etc.) should be set in **Vercel**, not GitHub.
+
+Set these in Vercel: **Project → Settings → Environment Variables** (choose Preview + Production as needed):
+- `DATABASE_URL` (Neon Postgres)
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `AWS_REGION`
+- Any Bedrock/model env vars your app expects (see `lib/env.ts`)
+
+Only add AWS secrets to **GitHub Actions secrets** if your CI steps themselves need AWS access (e.g. integration tests that call Bedrock).
