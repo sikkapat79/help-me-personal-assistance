@@ -2,7 +2,7 @@ import { createTaskSchema, type CreateTaskInput } from '../schema';
 import type { TaskFormState } from '../types';
 
 import { Task } from '@/lib/db/entities/Task';
-import { getOrm } from '@/lib/db/mikro-orm';
+import { getEntityManager } from '@/lib/db/mikro-orm';
 import { formDataToObject, zodFieldErrors } from '@/lib/validation/forms';
 
 const initialValues: Partial<CreateTaskInput> = {
@@ -32,8 +32,7 @@ export async function createTaskUseCase(
 
   // Persist to database
   try {
-    const orm = await getOrm();
-    const em = orm.em.fork();
+    const em = await getEntityManager();
 
     const task = new Task({
       title: parsed.data.title,

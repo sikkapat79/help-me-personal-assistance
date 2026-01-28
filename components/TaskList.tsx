@@ -129,7 +129,6 @@ export async function TaskList() {
       orderBy: [{ dueAt: 'ASC' }, { createdAt: 'DESC' }],
     },
   );
-  console.log('🚀 ~ TaskList ~ tasks:', tasks);
 
   if (tasks.length === 0) {
     return <EmptyState />;
