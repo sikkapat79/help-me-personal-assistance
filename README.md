@@ -25,6 +25,35 @@ HelpMe is a Next.js application that acts as an AI personal assistant. It treats
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Tech Stack
+
+- **Framework**: Next.js 16 (App Router) with Turbopack
+- **Database**: Neon Postgres with TypeORM
+- **AI**: AWS Bedrock (server-side)
+- **Styling**: Tailwind CSS + shadcn/ui
+- **Deployment**: Vercel
+
+### Database (TypeORM)
+
+This project uses TypeORM with connection pooling for optimal performance:
+- Repository pattern for data access
+- Connection pool: max 20, min 5 connections
+- Migrations managed via TypeORM CLI
+
+**Database scripts:**
+```bash
+# Run pending migrations
+pnpm db:migrate:run
+
+# Generate new migration after entity changes
+pnpm db:migration:generate -- lib/db/migrations/MigrationName
+
+# Create empty migration
+pnpm db:migration:create
+```
+
+See `MIGRATION_GUIDE.md` for details about the MikroORM → TypeORM migration.
+
 ## Getting Started
 
 First, run the development server:

@@ -13,7 +13,7 @@ alwaysApply: true
   - Use-cases: `lib/features/<feature>/use-cases/**`
 - Integrations and shared utilities live in `lib/`:
   - Bedrock: `lib/bedrock/**`
-  - Database/Mikro-ORM: `lib/db/**` (Data Mapper style; use EM/repositories in use-cases)
+  - Database/TypeORM: `lib/db/**` (Repository pattern; use repositories in use-cases)
   - Env parsing/validation: `lib/env.ts`
   - Shared validation helpers: `lib/validation/**`
 - UI:

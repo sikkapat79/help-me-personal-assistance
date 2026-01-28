@@ -1,4 +1,4 @@
-import { getEntityManager } from '@/lib/db/mikro-orm';
+import { getRepository } from '@/lib/db/connection';
 import { Task } from '@/lib/db/entities/Task';
 import { TaskStatus } from '@/lib/features/tasks/schema';
 import { Result, ok, err } from '@/lib/result';
@@ -9,15 +9,14 @@ export async function updateTaskStatus(
   taskId: string,
   status: TaskStatus,
 ): Promise<Result<Task, AppError>> {
-  const em = await getEntityManager();
+  const taskRepo = await getRepository(Task);
   const activeProfileId = await requireActiveProfileId();
 
   try {
-    const task = await em.findOne(
-      Task,
-      { id: taskId },
-      { populate: ['owner'] },
-    );
+    const task = await taskRepo.findOne({
+      where: { id: taskId },
+      relations: ['owner'],
+    });
 
     if (!task) {
       return err(
@@ -38,7 +37,7 @@ export async function updateTaskStatus(
     }
 
     task.updateStatus(status);
-    await em.flush();
+    await taskRepo.save(task);
 
     return ok(task);
   } catch (error) {

@@ -18,7 +18,7 @@ HelpMe is an AI personal assistant that helps a human decide what to do next by 
 ### Scope (v1)
 In scope:
 - Single-user experience (no complex org/team features).
-- Server-side AI calls (Bedrock) + server-side persistence (Neon Postgres via Mikro-ORM).
+- Server-side AI calls (Bedrock) + server-side persistence (Neon Postgres via TypeORM).
 - Explainable prioritization output.
 
 Out of scope (for now):
@@ -62,7 +62,7 @@ flowchart TD
 - Next.js (App Router)
 - Tailwind CSS + shadcn/ui
 - AWS Bedrock (server-side)
-- Neon Postgres + Mikro-ORM
+- Neon Postgres + TypeORM
 - Deploy: Vercel
 
 ### Architectural boundaries (important)
@@ -74,14 +74,15 @@ flowchart TD
   - Use cases: `lib/features/<feature>/use-cases/**`
 - **Integrations**: `lib/**`
   - Bedrock client/wrappers: `lib/bedrock/**`
-  - DB + Mikro-ORM: `lib/db/**`
+  - DB + TypeORM: `lib/db/**`
   - Env parsing/validation: `lib/env.ts`
   - Shared validation helpers: `lib/validation/**`
 
-### DB style (Mikro-ORM)
-- Use **Data Mapper** style (no Active Record).
-- Do persistence via `EntityManager` / repositories in `lib/features/<feature>/use-cases/**`.
-- Entities may contain **pure** methods (no DB/network/EM).
+### DB style (TypeORM)
+- Use **Repository** pattern (no Active Record).
+- Get repositories via `getRepository(Entity)` in `lib/features/<feature>/use-cases/**`.
+- Entities may contain **pure** methods (no DB/network/repository access).
+- Connection pooling configured in `lib/db/typeorm-config.ts` (max: 20, min: 5).
 
 ### Security rules
 - Never expose secrets to the client:

@@ -1,43 +1,59 @@
-import { Entity, PrimaryKey, Property, Enum, ManyToOne } from '@mikro-orm/core';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 import { TaskIntensity, TaskStatus } from '@/lib/features/tasks/schema';
 import { UserProfile } from './UserProfile';
 
-@Entity({ tableName: 'task' })
+@Entity('task')
 export class Task {
-  @PrimaryKey({ type: 'uuid', nullable: true })
+  @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @ManyToOne(() => UserProfile, { fieldName: 'owner_id' })
+  @ManyToOne(() => UserProfile, { nullable: false })
+  @JoinColumn({ name: 'owner_id' })
   owner!: UserProfile;
 
-  @Property({ type: 'string' })
-  title: string;
+  @Column({ type: 'varchar', length: 200 })
+  title!: string;
 
-  @Property({ nullable: true, type: 'text' })
-  description: string | null;
+  @Column({ type: 'text', nullable: true })
+  description!: string | null;
 
-  @Enum(() => TaskIntensity)
-  @Property({ type: 'string', nullable: true })
-  intensity: TaskIntensity;
+  @Column({ type: 'varchar', length: 50 })
+  intensity!: TaskIntensity;
 
-  @Property({ nullable: true, type: 'timestamptz' })
-  dueAt: Date | null;
+  @Column({ type: 'timestamptz', nullable: true, name: 'due_at' })
+  dueAt!: Date | null;
 
-  @Property({ type: 'json' })
-  tags: string[];
+  @Column({ type: 'jsonb' })
+  tags!: string[];
 
-  @Enum(() => TaskStatus)
-  @Property({ type: 'string', nullable: true })
-  status: TaskStatus;
+  @Column({ type: 'varchar', length: 50 })
+  status!: TaskStatus;
 
-  @Property({ type: 'timestamptz' })
-  createdAt: Date = new Date();
+  @CreateDateColumn({
+    type: 'timestamptz',
+    name: 'created_at',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  createdAt!: Date;
 
-  @Property({ type: 'timestamptz', onUpdate: () => new Date() })
-  updatedAt: Date = new Date();
+  @UpdateDateColumn({
+    type: 'timestamptz',
+    name: 'updated_at',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  updatedAt!: Date;
 
-  constructor(data: {
+  constructor(data?: {
     owner: UserProfile;
     title: string;
     description?: string | null;
@@ -45,13 +61,19 @@ export class Task {
     dueAt?: Date | null;
     tags?: string[];
   }) {
-    this.owner = data.owner;
-    this.title = Task.normalizeTitle(data.title);
-    this.description = data.description ?? null;
-    this.intensity = data.intensity ?? TaskIntensity.QuickWin;
-    this.dueAt = data.dueAt ?? null;
-    this.tags = data.tags ?? [];
-    this.status = TaskStatus.Pending;
+    if (data) {
+      this.owner = data.owner;
+      this.title = Task.normalizeTitle(data.title);
+      this.description = data.description ?? null;
+      this.intensity = data.intensity ?? TaskIntensity.QuickWin;
+      this.dueAt = data.dueAt ?? null;
+      this.tags = data.tags ?? [];
+      this.status = TaskStatus.Pending;
+
+      // Set createdAt for new entities - TypeORM will handle updatedAt automatically
+      this.createdAt = new Date();
+      this.updatedAt = new Date();
+    }
   }
 
   // Pure domain methods (no DB/network)

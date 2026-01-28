@@ -2,7 +2,7 @@ import { createTaskSchema, type CreateTaskInput } from '../schema';
 import type { TaskFormState } from '../types';
 
 import { Task } from '@/lib/db/entities/Task';
-import { getEntityManager } from '@/lib/db/mikro-orm';
+import { getRepository } from '@/lib/db/connection';
 import { formDataToObject, zodFieldErrors } from '@/lib/validation/forms';
 import { requireActiveProfileId } from '@/lib/features/profile/activeProfile';
 import { getUserProfileById } from '@/lib/features/profile/use-cases/getUserProfileById';
@@ -34,7 +34,7 @@ export async function createTaskUseCase(
 
   // Persist to database
   try {
-    const em = await getEntityManager();
+    const taskRepo = await getRepository(Task);
 
     // Get the active profile
     const profileId = await requireActiveProfileId();
@@ -57,7 +57,7 @@ export async function createTaskUseCase(
       tags: parsed.data.tags,
     });
 
-    await em.persist(task).flush();
+    await taskRepo.save(task);
 
     return {
       ok: true,
