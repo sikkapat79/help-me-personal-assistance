@@ -78,10 +78,12 @@ flowchart TD
   - Env parsing/validation: `lib/env.ts`
   - Shared validation helpers: `lib/validation/**`
 
-### DB style (TypeORM)
+### DB style (TypeORM + DDD)
 - Use **Repository** pattern (no Active Record).
 - Get repositories via `getRepository(Entity)` in `lib/features/<feature>/use-cases/**`.
 - Entities may contain **pure** methods (no DB/network/repository access).
+- **DDD principle**: Domain models control their own behavior (e.g., domain methods explicitly update `updatedAt`).
+- Avoid ORM "magic": Use regular `@Column()` for timestamps, not `@CreateDateColumn()` / `@UpdateDateColumn()`.
 - Connection pooling configured in `lib/db/typeorm-config.ts` (max: 20, min: 5).
 
 ### Security rules

@@ -1,10 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 import { PrimaryFocusPeriod } from '@/lib/features/profile/schema';
 
@@ -31,19 +25,10 @@ export class UserProfile {
   @Column({ type: 'varchar', length: 50, name: 'primary_focus_period' })
   primaryFocusPeriod!: PrimaryFocusPeriod;
 
-  @CreateDateColumn({
-    type: 'timestamptz',
-    name: 'created_at',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
+  @Column({ type: 'timestamptz', name: 'created_at' })
   createdAt!: Date;
 
-  @UpdateDateColumn({
-    type: 'timestamptz',
-    name: 'updated_at',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
+  @Column({ type: 'timestamptz', name: 'updated_at' })
   updatedAt!: Date;
 
   constructor(data?: {
@@ -96,6 +81,9 @@ export class UserProfile {
     if (data.primaryFocusPeriod !== undefined) {
       this.primaryFocusPeriod = data.primaryFocusPeriod;
     }
+
+    // Domain model controls its own timestamp
+    this.updatedAt = new Date();
   }
 
   private static normalizeDisplayName(value: string): string {

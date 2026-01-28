@@ -45,6 +45,7 @@ alwaysApply: true
 - Avoid “god files”: don’t put many responsibilities into one large file.
 - Prefer splitting into small modules (schemas, types, use-cases, UI components) with clear names and single responsibility.
 - Entities may have **pure** methods, but persistence/orchestration stays in use-cases (no Active Record).
+- **DDD principle**: Domain models control their own behavior explicitly; avoid ORM "magic" (e.g., entities update their own `updatedAt` timestamp in domain methods).
 - Readability via proximity: keep related lines together; separate distinct concerns with a single blank line (avoid both cramped code and excessive vertical whitespace).
 
 ### Null-safety conventions

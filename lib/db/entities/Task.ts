@@ -4,8 +4,6 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 
 import { TaskIntensity, TaskStatus } from '@/lib/features/tasks/schema';
@@ -38,19 +36,10 @@ export class Task {
   @Column({ type: 'varchar', length: 50 })
   status!: TaskStatus;
 
-  @CreateDateColumn({
-    type: 'timestamptz',
-    name: 'created_at',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
+  @Column({ type: 'timestamptz', name: 'created_at' })
   createdAt!: Date;
 
-  @UpdateDateColumn({
-    type: 'timestamptz',
-    name: 'updated_at',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
+  @Column({ type: 'timestamptz', name: 'updated_at' })
   updatedAt!: Date;
 
   constructor(data?: {
@@ -79,14 +68,17 @@ export class Task {
   // Pure domain methods (no DB/network)
   updateStatus(nextStatus: TaskStatus): void {
     this.status = nextStatus;
+    this.updatedAt = new Date();
   }
 
   reschedule(nextDueAt: Date | null): void {
     this.dueAt = nextDueAt;
+    this.updatedAt = new Date();
   }
 
   updateIntensity(nextIntensity: TaskIntensity): void {
     this.intensity = nextIntensity;
+    this.updatedAt = new Date();
   }
 
   private static normalizeTitle(value: string): string {
