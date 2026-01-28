@@ -1,23 +1,29 @@
-import "reflect-metadata";
+import 'reflect-metadata';
 
-import type { Options } from "@mikro-orm/core";
-import { defineConfig } from "@mikro-orm/postgresql";
+import type { Options } from '@mikro-orm/core';
+import { defineConfig } from '@mikro-orm/postgresql';
 
-import { Conversation } from "./lib/db/entities/Conversation";
+import { Task } from '@/lib/db/entities/Task';
+import { getDbEnv } from '@/lib/env';
 
-const DATABASE_URL = process.env.DATABASE_URL;
-if (!DATABASE_URL) {
-  throw new Error("DATABASE_URL is required for Mikro-ORM");
-}
+const db = getDbEnv();
 
 export default defineConfig({
-  clientUrl: DATABASE_URL,
-  entities: [Conversation],
+  host: db.host,
+  port: db.port,
+  user: db.user,
+  password: db.password,
+  dbName: db.dbName,
+  driverOptions: {
+    connection: {
+      ssl: { rejectUnauthorized: false },
+    },
+  },
+  entities: [Task],
   migrations: {
-    path: "lib/db/migrations",
+    path: 'lib/db/migrations',
   },
   // Vercel/serverless-friendly defaults:
   // - keep debug off by default
-  debug: false,
+  debug: true,
 } satisfies Options);
-

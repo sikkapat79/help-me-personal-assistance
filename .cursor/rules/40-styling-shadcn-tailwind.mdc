@@ -16,3 +16,12 @@ alwaysApply: false
 - Use a `cn(...)` helper (in `lib/utils`) for conditional className composition.
 - Keep UI components presentational; move business logic to Server Actions and `lib/*`.
 
+### Component ID convention (REQUIRED)
+- **All React components MUST have an `id` attribute on their root element**.
+- Naming convention: **kebab-case** derived from component name
+  - `TaskCreateModal` → `id="task-create-modal"`
+  - `SubmitButton` → `id="submit-button"`
+- For interactive elements (buttons, inputs, forms), also add descriptive IDs
+  - Example: `<Button id="add-task-button">`
+- Purpose: DOM targeting, CSS selectors, debugging, analytics tracking
+

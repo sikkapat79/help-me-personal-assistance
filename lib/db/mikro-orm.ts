@@ -1,5 +1,4 @@
 import "reflect-metadata";
-import "server-only";
 
 import { MikroORM } from "@mikro-orm/core";
 

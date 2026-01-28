@@ -24,3 +24,15 @@ alwaysApply: false
 - At boundaries (Bedrock/DB/HTTP), parse to `unknown` then validate (Zod) and return typed results.
 - Prefer returning `Result<Data, Error>`-style objects over throwing across layers.
 
+### Enum conventions
+- **Prefer TypeScript enums over string literal unions** for domain types (status, intensity, etc.)
+  - Rationale: Enums are explicit, refactorable, iterable, and feel less "magic"
+  - Use string enums with **PascalCase values** (consistent with keys): `enum TaskStatus { Pending = "Pending", InProgress = "InProgress" }`
+  - Works well with Zod: `z.nativeEnum(TaskStatus)`
+  - Works well with Mikro-ORM: `@Enum(() => TaskStatus)`
+  - Can iterate for UI dropdowns: `Object.values(TaskStatus)`
+- String literal unions are acceptable for:
+  - Simple one-off types that won't be iterated
+  - External API types you don't control
+  - Very small scopes (e.g., single component props)
+
