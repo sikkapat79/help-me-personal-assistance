@@ -1,0 +1,18 @@
+---
+description: Tailwind + shadcn/ui styling conventions
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+## Styling (Tailwind + shadcn/ui)
+
+### Component placement
+- shadcn/ui primitives live in `components/ui/**`.
+- App-specific components live in `components/**` (compose primitives).
+- Page-scoped components can be colocated under `app/**/_components/**` when truly route-specific.
+
+### Styling rules
+- Prefer Tailwind utility classes; keep `app/globals.css` for tokens/base styles only.
+- Use a `cn(...)` helper (in `lib/utils`) for conditional className composition.
+- Keep UI components presentational; move business logic to Server Actions and `lib/*`.
+

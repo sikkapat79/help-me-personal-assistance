@@ -1,0 +1,30 @@
+---
+description: Next.js Server Actions conventions (App Router)
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+## Server Actions conventions
+
+### When to use what
+- Prefer **Server Actions** for app UI mutations and “call Bedrock + read/write DB” flows.
+- Use `app/api/**` only for:
+  - third-party webhooks
+  - external clients needing HTTP
+  - non-UI integrations requiring stable REST endpoints
+
+### Boundaries
+- Client Components should call Server Actions; they should not import `lib/bedrock/**` or `lib/db/**`.
+- Server Actions should:
+  - validate input (schema)
+  - call a **use-case** in `lib/features/<feature>/use-cases/**` (preferred) which may call `lib/bedrock/**` / `lib/db/**`
+  - return a typed result (success/error)
+
+### Readability rule (thin actions)
+- Keep Server Actions **thin** (orchestration only): validate → call use-case → return result.
+- Put business logic (auth rules, multi-step flows, Bedrock+DB composition) in `lib/features/**`.
+
+### Performance + caching basics
+- Assume actions can be called frequently; keep them efficient and avoid unnecessary DB connections.
+- Avoid putting large, long-running work in the request path; consider background jobs if needed later.
+

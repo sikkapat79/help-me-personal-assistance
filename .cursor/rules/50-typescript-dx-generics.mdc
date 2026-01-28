@@ -1,0 +1,26 @@
+---
+description: TypeScript DX conventions (generic names, typing boundaries)
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+## TypeScript DX conventions
+
+### Generic type naming (DX first)
+- Avoid single-letter generic names like `T`, `E`, `K`, `V` in non-trivial code.
+- Prefer **descriptive** generic names so call sites are self-explanatory:
+  - `Data`, `Error`, `Input`, `Output`
+  - `Entity`, `Id`, `Row`, `Params`, `Context`
+  - `ResponseBody`, `RequestBody`
+  - If you want a prefix, use `TData`, `TError`, `TInput`, `TOutput` (still descriptive).
+- Single-letter generics are acceptable only in very small/local scopes (e.g. a 3-line helper) where meaning is obvious.
+
+### Prefer type aliases for readability
+- If a generic signature becomes hard to read, extract:
+  - `type CreateUserInput = z.infer<typeof createUserSchema>;`
+  - `type UserRow = { ... }`
+
+### Boundary typing rules
+- At boundaries (Bedrock/DB/HTTP), parse to `unknown` then validate (Zod) and return typed results.
+- Prefer returning `Result<Data, Error>`-style objects over throwing across layers.
+

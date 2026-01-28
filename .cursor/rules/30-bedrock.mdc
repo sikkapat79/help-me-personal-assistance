@@ -1,0 +1,21 @@
+---
+description: AWS Bedrock conventions (server-only integration)
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+## AWS Bedrock conventions
+
+### Where Bedrock code lives
+- Bedrock client + wrappers: `lib/bedrock/**`
+- Server Actions call Bedrock via the wrapper; UI never talks to Bedrock directly.
+
+### Security
+- Never ship AWS credentials to the client.
+- Model IDs and regions come from env/config, not hard-coded in UI.
+
+### Reliability
+- Wrap Bedrock calls with consistent error handling.
+- Prefer structured outputs (typed result objects) over throwing raw errors across layers.
+- Keep prompts/versioning explicit when prompt changes matter for behavior.
+

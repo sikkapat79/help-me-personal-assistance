@@ -1,0 +1,50 @@
+---
+description: Core context-engineering rules (architecture, safety, workflow)
+alwaysApply: true
+---
+
+## Core context (always apply)
+
+### Architecture guardrails
+- This is a **Next.js App Router** project. Prefer Server Components by default.
+- Primary backend surface is **Server Actions** (in `app/_actions/`). Only add `app/api/**` when truly needed (webhooks, external clients, etc.).
+- Business logic is **feature-based** in `lib/features/<feature>/**`:
+  - Schemas/types: `lib/features/<feature>/schema.ts`, `types.ts`
+  - Use-cases: `lib/features/<feature>/use-cases/**`
+- Integrations and shared utilities live in `lib/`:
+  - Bedrock: `lib/bedrock/**`
+  - Database/Mikro-ORM: `lib/db/**` (Data Mapper style; use EM/repositories in use-cases)
+  - Env parsing/validation: `lib/env.ts`
+  - Shared validation helpers: `lib/validation/**`
+- UI:
+  - shadcn/ui primitives in `components/ui/**`
+  - app-level components in `components/**`
+
+### Security + deployment constraints (Vercel)
+- **Never** expose AWS credentials or `DATABASE_URL` to the client (no `NEXT_PUBLIC_` for secrets).
+- Bedrock + DB code must run on the **server** (Node runtime). Avoid Edge for AWS SDK + DB.
+- Do not run DB migrations during request handling; migrations are a separate workflow.
+
+### Context-engineering workflow
+- Before coding: infer whether the change is **UI**, **Server Action**, **Bedrock**, or **DB**; keep responsibilities separated.
+- Prefer small, composable modules with clear boundaries:
+  - server actions orchestrate
+  - `lib/features/*` implements business flows (use-cases) and feature schemas
+  - `lib/*` provides clients + shared helpers
+  - UI stays dumb (renders data, triggers actions)
+
+### DX conventions
+- Prefer descriptive generic type names (avoid `T`, `E` in non-trivial code).
+- Prefer `unknown` + validation over `any`.
+- Avoid “god files”: don’t put many responsibilities into one large file.
+- Prefer splitting into small modules (schemas, types, use-cases, UI components) with clear names and single responsibility.
+- Entities may have **pure** methods, but persistence/orchestration stays in use-cases (no Active Record).
+- Readability via proximity: keep related lines together; separate distinct concerns with a single blank line (avoid both cramped code and excessive vertical whitespace).
+
+### Null-safety conventions
+- `null` means **absent / unknown / not provided** (preferred for domain + DB).
+- `""` (empty string) is allowed in **UI form state only**. Normalize at boundaries:
+  - trim input
+  - convert empty string → `null` for optional fields
+- For required strings: reject `""` via validation (do not store `null`).
+

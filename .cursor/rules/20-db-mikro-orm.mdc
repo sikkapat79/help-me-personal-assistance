@@ -1,0 +1,35 @@
+---
+description: Neon Postgres + Mikro-ORM conventions
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+## DB (Neon Postgres + Mikro-ORM) conventions
+
+### Persistence style (Data Mapper)
+- Use **Data Mapper** style.
+- Do **not** use Active Record patterns (no entity-level `save()`/`remove()` methods as the default approach).
+- Persistence happens via `EntityManager` / repositories inside `lib/features/<feature>/use-cases/**`.
+
+### Where DB code lives
+- ORM bootstrap + helpers: `lib/db/**`
+- Entities: `lib/db/entities/**`
+- Migrations: `lib/db/migrations/**` (or the configured Mikro-ORM path)
+
+### Rules of thumb
+- Do not access the DB directly from UI components.
+- Prefer per-feature repositories/use-cases rather than scattering queries everywhere.
+- Always use parameterized queries / ORM query builder patterns (avoid string concatenation).
+
+### Entities
+- Entities may include **pure** domain methods (no DB calls, no network calls, no `EntityManager`).
+- Keep entities focused; put orchestration and persistence logic in use-cases.
+
+### Migrations
+- Migrations are generated/applied via scripts, not during normal requests.
+- Keep migrations reviewable; avoid “magic schema sync” in production.
+
+### Connections (serverless)
+- Reuse ORM instances when possible (singleton in dev) to reduce connection churn.
+- Keep transactions short and explicit when used.
+
