@@ -1,43 +1,48 @@
-import { Entity, PrimaryKey, Property, Enum, ManyToOne } from '@mikro-orm/core';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 
 import { TaskIntensity, TaskStatus } from '@/lib/features/tasks/schema';
 import { UserProfile } from './UserProfile';
 
-@Entity()
+@Entity('task')
 export class Task {
-  @PrimaryKey({ type: 'uuid', nullable: true })
+  @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @ManyToOne(() => UserProfile)
+  @ManyToOne(() => UserProfile, { nullable: false })
+  @JoinColumn({ name: 'owner_id' })
   owner!: UserProfile;
 
-  @Property({ type: 'string' })
-  title: string;
+  @Column({ type: 'varchar', length: 200 })
+  title!: string;
 
-  @Property({ nullable: true, type: 'text' })
-  description: string | null;
+  @Column({ type: 'text', nullable: true })
+  description!: string | null;
 
-  @Enum(() => TaskIntensity)
-  @Property({ type: 'string', nullable: true })
-  intensity: TaskIntensity;
+  @Column({ type: 'varchar', length: 50 })
+  intensity!: TaskIntensity;
 
-  @Property({ nullable: true, type: 'timestamptz' })
-  dueAt: Date | null;
+  @Column({ type: 'timestamptz', nullable: true, name: 'due_at' })
+  dueAt!: Date | null;
 
-  @Property({ type: 'json' })
-  tags: string[];
+  @Column({ type: 'jsonb' })
+  tags!: string[];
 
-  @Enum(() => TaskStatus)
-  @Property({ type: 'string', nullable: true })
-  status: TaskStatus;
+  @Column({ type: 'varchar', length: 50 })
+  status!: TaskStatus;
 
-  @Property({ type: 'timestamptz' })
-  createdAt: Date = new Date();
+  @Column({ type: 'timestamptz', name: 'created_at' })
+  createdAt!: Date;
 
-  @Property({ type: 'timestamptz', onUpdate: () => new Date() })
-  updatedAt: Date = new Date();
+  @Column({ type: 'timestamptz', name: 'updated_at' })
+  updatedAt!: Date;
 
-  constructor(data: {
+  constructor(data?: {
     owner: UserProfile;
     title: string;
     description?: string | null;
@@ -45,26 +50,35 @@ export class Task {
     dueAt?: Date | null;
     tags?: string[];
   }) {
-    this.owner = data.owner;
-    this.title = Task.normalizeTitle(data.title);
-    this.description = data.description ?? null;
-    this.intensity = data.intensity ?? TaskIntensity.QuickWin;
-    this.dueAt = data.dueAt ?? null;
-    this.tags = data.tags ?? [];
-    this.status = TaskStatus.Pending;
+    if (data) {
+      this.owner = data.owner;
+      this.title = Task.normalizeTitle(data.title);
+      this.description = data.description ?? null;
+      this.intensity = data.intensity ?? TaskIntensity.QuickWin;
+      this.dueAt = data.dueAt ?? null;
+      this.tags = data.tags ?? [];
+      this.status = TaskStatus.Pending;
+
+      // Set createdAt for new entities - TypeORM will handle updatedAt automatically
+      this.createdAt = new Date();
+      this.updatedAt = new Date();
+    }
   }
 
   // Pure domain methods (no DB/network)
   updateStatus(nextStatus: TaskStatus): void {
     this.status = nextStatus;
+    this.updatedAt = new Date();
   }
 
   reschedule(nextDueAt: Date | null): void {
     this.dueAt = nextDueAt;
+    this.updatedAt = new Date();
   }
 
   updateIntensity(nextIntensity: TaskIntensity): void {
     this.intensity = nextIntensity;
+    this.updatedAt = new Date();
   }
 
   private static normalizeTitle(value: string): string {

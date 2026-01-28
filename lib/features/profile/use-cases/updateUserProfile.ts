@@ -1,4 +1,4 @@
-import { getEntityManager } from '@/lib/db/mikro-orm';
+import { getRepository } from '@/lib/db/connection';
 import { UserProfile } from '@/lib/db/entities/UserProfile';
 import { Result } from '@/lib/result';
 import { AppError } from '@/lib/errors';
@@ -9,8 +9,8 @@ export async function updateUserProfile(
   input: UpdateUserProfileInput,
 ): Promise<Result<UserProfile, AppError>> {
   try {
-    const em = await getEntityManager();
-    const profile = await em.findOne(UserProfile, { id: profileId });
+    const profileRepo = await getRepository(UserProfile);
+    const profile = await profileRepo.findOne({ where: { id: profileId } });
 
     if (!profile) {
       return {
@@ -21,7 +21,7 @@ export async function updateUserProfile(
 
     profile.updateProfile(input);
 
-    await em.flush();
+    await profileRepo.save(profile);
 
     return {
       ok: true,

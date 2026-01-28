@@ -1,4 +1,4 @@
-import { getEntityManager } from '@/lib/db/mikro-orm';
+import { getRepository } from '@/lib/db/connection';
 import { UserProfile } from '@/lib/db/entities/UserProfile';
 import { Result } from '@/lib/result';
 import { AppError } from '@/lib/errors';
@@ -8,7 +8,7 @@ export async function createUserProfile(
   input: CreateUserProfileInput,
 ): Promise<Result<UserProfile, AppError>> {
   try {
-    const em = await getEntityManager();
+    const profileRepo = await getRepository(UserProfile);
 
     const profile = new UserProfile({
       displayName: input.displayName,
@@ -19,7 +19,7 @@ export async function createUserProfile(
       primaryFocusPeriod: input.primaryFocusPeriod,
     });
 
-    await em.persistAndFlush(profile);
+    await profileRepo.save(profile);
 
     return {
       ok: true,

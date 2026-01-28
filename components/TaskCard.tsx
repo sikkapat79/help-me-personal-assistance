@@ -5,6 +5,7 @@ import type { TaskData } from '@/lib/features/tasks/types';
 import { TaskIntensity, TaskStatus } from '@/lib/features/tasks/schema';
 import { Checkbox } from '@/components/ui/checkbox';
 import { updateTaskStatusAction } from '@/app/_actions/update-task-status';
+import { useToast } from '@/lib/hooks/use-toast';
 
 function IntensityBadge({ intensity }: Readonly<{ intensity: TaskIntensity }>) {
   const styles = {
@@ -68,6 +69,7 @@ export function TaskCard({ task }: Readonly<{ task: TaskData }>) {
     task.status,
     (_state, newStatus: TaskStatus) => newStatus,
   );
+  const toast = useToast();
 
   const isCompleted = optimisticStatus === TaskStatus.Completed;
 
@@ -81,11 +83,18 @@ export function TaskCard({ task }: Readonly<{ task: TaskData }>) {
       // Send update to server
       const result = await updateTaskStatusAction(task.id, newStatus);
 
-      if (!result.ok) {
+      if (result.ok) {
+        const statusLabel = checked ? 'completed' : 'pending';
+        toast.info(`Task marked as ${statusLabel}`, {
+          description: task.title,
+        });
+      } else {
         console.error('Failed to update task status:', result.error);
+        toast.error('Failed to update task', {
+          description: result.error?.message || 'Could not update task status.',
+        });
         // The optimistic update will automatically revert when the component
         // re-renders because task.status hasn't changed on the server
-        // TODO: Show a toast notification to inform the user
       }
       // On success, the optimistic state will sync with the actual prop
       // when the page refreshes or the component re-renders

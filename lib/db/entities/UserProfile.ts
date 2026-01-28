@@ -1,38 +1,37 @@
-import { Entity, PrimaryKey, Property, Enum } from '@mikro-orm/core';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 import { PrimaryFocusPeriod } from '@/lib/features/profile/schema';
 
-@Entity()
+@Entity('user_profile')
 export class UserProfile {
-  @PrimaryKey({ type: 'uuid', nullable: true })
+  @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Property({ type: 'string' })
-  displayName: string;
+  @Column({ type: 'varchar', length: 100, name: 'display_name' })
+  displayName!: string;
 
-  @Property({ type: 'string' })
-  role: string;
+  @Column({ type: 'varchar', length: 100 })
+  role!: string;
 
-  @Property({ nullable: true, type: 'text' })
-  bio: string | null;
+  @Column({ type: 'text', nullable: true })
+  bio!: string | null;
 
-  @Property({ type: 'integer' })
-  workingStartMinutes: number;
+  @Column({ type: 'integer', name: 'working_start_minutes' })
+  workingStartMinutes!: number;
 
-  @Property({ type: 'integer' })
-  workingEndMinutes: number;
+  @Column({ type: 'integer', name: 'working_end_minutes' })
+  workingEndMinutes!: number;
 
-  @Enum(() => PrimaryFocusPeriod)
-  @Property({ type: 'string' })
-  primaryFocusPeriod: PrimaryFocusPeriod;
+  @Column({ type: 'varchar', length: 50, name: 'primary_focus_period' })
+  primaryFocusPeriod!: PrimaryFocusPeriod;
 
-  @Property({ type: 'timestamptz' })
-  createdAt: Date = new Date();
+  @Column({ type: 'timestamptz', name: 'created_at' })
+  createdAt!: Date;
 
-  @Property({ type: 'timestamptz', onUpdate: () => new Date() })
-  updatedAt: Date = new Date();
+  @Column({ type: 'timestamptz', name: 'updated_at' })
+  updatedAt!: Date;
 
-  constructor(data: {
+  constructor(data?: {
     displayName: string;
     role: string;
     bio?: string | null;
@@ -40,12 +39,19 @@ export class UserProfile {
     workingEndMinutes: number;
     primaryFocusPeriod: PrimaryFocusPeriod;
   }) {
-    this.displayName = UserProfile.normalizeDisplayName(data.displayName);
-    this.role = UserProfile.normalizeRole(data.role);
-    this.bio = data.bio ?? null;
-    this.workingStartMinutes = data.workingStartMinutes;
-    this.workingEndMinutes = data.workingEndMinutes;
-    this.primaryFocusPeriod = data.primaryFocusPeriod;
+    if (data) {
+      this.displayName = UserProfile.normalizeDisplayName(data.displayName);
+      this.role = UserProfile.normalizeRole(data.role);
+      this.bio = data.bio ?? null;
+      this.workingStartMinutes = data.workingStartMinutes;
+      this.workingEndMinutes = data.workingEndMinutes;
+      this.primaryFocusPeriod = data.primaryFocusPeriod;
+
+      // Explicitly set timestamps for new entities
+      const now = new Date();
+      this.createdAt = now;
+      this.updatedAt = now;
+    }
   }
 
   // Pure domain methods (no DB/network)
@@ -75,6 +81,9 @@ export class UserProfile {
     if (data.primaryFocusPeriod !== undefined) {
       this.primaryFocusPeriod = data.primaryFocusPeriod;
     }
+
+    // Domain model controls its own timestamp
+    this.updatedAt = new Date();
   }
 
   private static normalizeDisplayName(value: string): string {

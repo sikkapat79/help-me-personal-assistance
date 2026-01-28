@@ -1,0 +1,72 @@
+---
+description: Neon Postgres + TypeORM conventions
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+## DB (Neon Postgres + TypeORM) conventions
+
+### Persistence style (Repository pattern)
+- Use **Repository** pattern for data access.
+- Do **not** use Active Record patterns (entities don't have `save()`/`remove()` methods).
+- Persistence happens via repositories obtained from `getRepository()` inside `lib/features/<feature>/use-cases/**`.
+
+### Where DB code lives
+- ORM bootstrap + helpers: `lib/db/**` (typeorm-config.ts, connection.ts)
+- Entities: `lib/db/entities/**`
+- Migrations: `lib/db/migrations/**`
+
+### Rules of thumb
+- Do not access the DB directly from UI components.
+- Prefer per-feature repositories/use-cases rather than scattering queries everywhere.
+- Always use parameterized queries via TypeORM's query builder or repository methods.
+
+### Entities (DDD principles)
+- Entities may include **pure** domain methods (no DB calls, no network calls, no repository access).
+- Entity constructors should be optional - TypeORM instantiates entities without calling constructors when loading from DB.
+- Use definite assignment assertion (`!`) for entity fields that TypeORM will initialize.
+- Keep entities focused; put orchestration and persistence logic in use-cases.
+
+### Domain behavior over ORM magic (DDD)
+- **Entities control their own state** - don't rely on ORM decorators for behavior.
+- **Timestamps**: Use regular `@Column()` decorators, not `@CreateDateColumn()` or `@UpdateDateColumn()`.
+- **Explicit updates**: Domain methods should update `updatedAt` explicitly when modifying state.
+- **Constructor sets timestamps**: When creating new entities, constructor sets both `createdAt` and `updatedAt`.
+- **Why**: Domain behavior should be visible in domain code, not hidden in database/ORM configuration.
+
+Example:
+```typescript
+// ✅ Good - Domain model controls timestamps
+updateStatus(nextStatus: TaskStatus): void {
+  this.status = nextStatus;
+  this.updatedAt = new Date(); // Explicit
+}
+
+// ❌ Bad - Relying on ORM magic
+@UpdateDateColumn() // Hidden behavior
+updatedAt!: Date;
+```
+
+### Column mapping
+- Use snake_case in database (e.g., `display_name`, `created_at`)
+- Use camelCase in entities (e.g., `displayName`, `createdAt`)
+- Map columns explicitly: `@Column({ name: 'display_name' })`
+
+### TypeORM patterns
+- Get repositories: `const repo = await getRepository(Entity)`
+- Find one: `await repo.findOne({ where: { id }, relations: ['relation'] })`
+- Find many: `await repo.find({ where: { ... }, order: { field: 'ASC' } })`
+- Save: `await repo.save(entity)` (works for both insert and update)
+- Use `Not()`, `LessThan()`, `MoreThan()` operators from TypeORM for complex queries
+
+### Migrations
+- Generate migrations: `pnpm db:migration:generate -- lib/db/migrations/MigrationName`
+- Run migrations: `pnpm db:migrate:run`
+- Migrations are applied via scripts, not during normal requests.
+- Keep migrations reviewable; avoid "magic schema sync" in production.
+
+### Connections (serverless)
+- DataSource singleton with connection pooling (max: 20, min: 5) configured in `typeorm-config.ts`.
+- Connection automatically reused across requests.
+- Use `withTransaction()` helper for explicit transactions.
+- Keep transactions short and explicit when used.

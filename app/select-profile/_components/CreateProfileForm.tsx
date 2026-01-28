@@ -1,16 +1,37 @@
 'use client';
 
-import React, { useActionState, useTransition } from 'react';
+import React, { useActionState, useTransition, useEffect, useRef } from 'react';
 import { createProfileAction } from '@/app/_actions/create-profile';
 import { PrimaryFocusPeriod } from '@/lib/features/profile/schema';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/lib/hooks/use-toast';
 
 export function CreateProfileForm() {
   const [isPending, startTransition] = useTransition();
   const [state, formAction] = useActionState(createProfileAction, null);
+  const toast = useToast();
+  const didToastSuccessRef = useRef(false);
+
+  useEffect(() => {
+    if (!state) return;
+
+    if (state.ok) {
+      if (didToastSuccessRef.current) return;
+      didToastSuccessRef.current = true;
+      toast.success('Profile created successfully', {
+        description: 'Your profile has been created and selected.',
+      });
+    } else {
+      if (state.error.code !== 'VALIDATION_ERROR') {
+        toast.error('Failed to create profile', {
+          description: state.error.message,
+        });
+      }
+    }
+  }, [state, toast]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -43,7 +64,7 @@ export function CreateProfileForm() {
   return (
     <div
       id='create-profile-form'
-      className='rounded-lg border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900'
+      className='rounded-lg border border-border bg-card p-6 shadow-sm'
     >
       <form onSubmit={handleSubmit} className='space-y-4'>
         {/* Display Name and Role */}
@@ -110,7 +131,7 @@ export function CreateProfileForm() {
             <div>
               <Label
                 htmlFor='create-workingStartTime'
-                className='text-xs text-zinc-600 dark:text-zinc-400'
+                className='text-xs text-muted-foreground'
               >
                 Start
               </Label>
@@ -126,7 +147,7 @@ export function CreateProfileForm() {
             <div>
               <Label
                 htmlFor='create-workingEndTime'
-                className='text-xs text-zinc-600 dark:text-zinc-400'
+                className='text-xs text-muted-foreground'
               >
                 End
               </Label>
@@ -146,7 +167,7 @@ export function CreateProfileForm() {
         <div>
           <Label className='text-sm font-medium'>Primary Focus Period</Label>
           <div className='mt-2 flex gap-3'>
-            <label className='flex flex-1 cursor-pointer items-center justify-center rounded-md border-2 border-zinc-200 bg-white px-4 py-3 text-sm font-medium transition-colors has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-600 has-[:checked]:text-white hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:has-[:checked]:border-indigo-500 dark:has-[:checked]:bg-indigo-500 dark:hover:bg-zinc-800'>
+            <label className='flex flex-1 cursor-pointer items-center justify-center rounded-md border-2 border-input bg-background px-4 py-3 text-sm font-medium transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-primary-foreground hover:bg-accent'>
               <input
                 id='create-primaryFocusPeriod-morning'
                 type='radio'
@@ -157,7 +178,7 @@ export function CreateProfileForm() {
               />
               Morning Focus
             </label>
-            <label className='flex flex-1 cursor-pointer items-center justify-center rounded-md border-2 border-zinc-200 bg-white px-4 py-3 text-sm font-medium transition-colors has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-600 has-[:checked]:text-white hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:has-[:checked]:border-indigo-500 dark:has-[:checked]:bg-indigo-500 dark:hover:bg-zinc-800'>
+            <label className='flex flex-1 cursor-pointer items-center justify-center rounded-md border-2 border-input bg-background px-4 py-3 text-sm font-medium transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-primary-foreground hover:bg-accent'>
               <input
                 id='create-primaryFocusPeriod-noon'
                 type='radio'

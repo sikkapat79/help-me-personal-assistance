@@ -1,4 +1,4 @@
-import { getEntityManager } from '@/lib/db/mikro-orm';
+import { getRepository } from '@/lib/db/connection';
 import { UserProfile } from '@/lib/db/entities/UserProfile';
 import { Result } from '@/lib/result';
 import { AppError } from '@/lib/errors';
@@ -12,14 +12,12 @@ export async function getOrCreateDefaultUserProfile(): Promise<
   Result<UserProfile, AppError>
 > {
   try {
-    const em = await getEntityManager();
+    const profileRepo = await getRepository(UserProfile);
 
     // Try to find the first existing profile
-    let profile = await em.findOne(
-      UserProfile,
-      {},
-      { orderBy: { createdAt: 'ASC' } },
-    );
+    let profile = await profileRepo.findOne({
+      order: { createdAt: 'ASC' },
+    });
 
     // If no profile exists, create a default one
     if (!profile) {
@@ -32,7 +30,7 @@ export async function getOrCreateDefaultUserProfile(): Promise<
         primaryFocusPeriod: PrimaryFocusPeriod.Morning,
       });
 
-      await em.persistAndFlush(profile);
+      await profileRepo.save(profile);
     }
 
     return {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useActionState, useTransition } from 'react';
+import React, { useActionState, useTransition, useEffect, useRef } from 'react';
 import { updateProfileAction } from '@/app/_actions/update-profile';
 import { PrimaryFocusPeriod } from '@/lib/features/profile/schema';
 import {
@@ -11,18 +11,42 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/lib/hooks/use-toast';
 
 interface CalibrationFormProps {
-  profile: UserProfileData;
+  readonly profile: UserProfileData;
 }
 
 export function CalibrationForm({ profile }: CalibrationFormProps) {
   const [isPending, startTransition] = useTransition();
   const [state, formAction] = useActionState(updateProfileAction, null);
+  const toast = useToast();
+  const lastSuccessRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    if (!state) return;
+
+    if (state.ok) {
+      if (!lastSuccessRef.current) {
+        lastSuccessRef.current = true;
+        toast.success('Profile updated successfully', {
+          description: 'Your changes have been saved.',
+        });
+      }
+    } else {
+      lastSuccessRef.current = false;
+      if (state.error.code !== 'VALIDATION_ERROR') {
+        toast.error('Failed to update profile', {
+          description: state.error.message,
+        });
+      }
+    }
+  }, [state, toast]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    lastSuccessRef.current = false;
 
     // Convert time inputs (HH:MM) to minutes since midnight
     const workingStartTime = formData.get('workingStartTime') as string;
@@ -51,8 +75,8 @@ export function CalibrationForm({ profile }: CalibrationFormProps) {
   return (
     <div id='calibration-form' className='space-y-8'>
       {/* Bio & Identity Section */}
-      <div className='rounded-lg border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900'>
-        <h2 className='text-xl font-semibold text-zinc-900 dark:text-zinc-50'>
+      <div className='rounded-lg border border-border bg-card p-6 shadow-sm'>
+        <h2 className='text-xl font-semibold text-card-foreground'>
           Bio & Identity
         </h2>
         <form onSubmit={handleSubmit} className='mt-6 space-y-4'>
@@ -126,8 +150,8 @@ export function CalibrationForm({ profile }: CalibrationFormProps) {
           </div>
 
           {/* Chronotype Calibration Section */}
-          <div className='mt-6 border-t border-zinc-200 pt-6 dark:border-zinc-800'>
-            <h3 className='text-lg font-semibold text-zinc-900 dark:text-zinc-50'>
+          <div className='mt-6 border-t border-border pt-6'>
+            <h3 className='text-lg font-semibold text-card-foreground'>
               Chronotype Calibration
             </h3>
 
@@ -141,7 +165,7 @@ export function CalibrationForm({ profile }: CalibrationFormProps) {
                   <div>
                     <Label
                       htmlFor='workingStartTime'
-                      className='text-xs text-zinc-600 dark:text-zinc-400'
+                      className='text-xs text-muted-foreground'
                     >
                       Start
                     </Label>
@@ -159,7 +183,7 @@ export function CalibrationForm({ profile }: CalibrationFormProps) {
                   <div>
                     <Label
                       htmlFor='workingEndTime'
-                      className='text-xs text-zinc-600 dark:text-zinc-400'
+                      className='text-xs text-muted-foreground'
                     >
                       End
                     </Label>
@@ -183,7 +207,7 @@ export function CalibrationForm({ profile }: CalibrationFormProps) {
                   Primary Focus Period
                 </Label>
                 <div className='mt-2 flex gap-3'>
-                  <label className='flex flex-1 cursor-pointer items-center justify-center rounded-md border-2 border-zinc-200 bg-white px-4 py-3 text-sm font-medium transition-colors has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-600 has-[:checked]:text-white hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:has-[:checked]:border-indigo-500 dark:has-[:checked]:bg-indigo-500 dark:hover:bg-zinc-800'>
+                  <label className='flex flex-1 cursor-pointer items-center justify-center rounded-md border-2 border-input bg-background px-4 py-3 text-sm font-medium transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-primary-foreground hover:bg-accent'>
                     <input
                       id='primaryFocusPeriod-morning'
                       type='radio'
@@ -197,7 +221,7 @@ export function CalibrationForm({ profile }: CalibrationFormProps) {
                     />
                     Morning Focus
                   </label>
-                  <label className='flex flex-1 cursor-pointer items-center justify-center rounded-md border-2 border-zinc-200 bg-white px-4 py-3 text-sm font-medium transition-colors has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-600 has-[:checked]:text-white hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:has-[:checked]:border-indigo-500 dark:has-[:checked]:bg-indigo-500 dark:hover:bg-zinc-800'>
+                  <label className='flex flex-1 cursor-pointer items-center justify-center rounded-md border-2 border-input bg-background px-4 py-3 text-sm font-medium transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-primary-foreground hover:bg-accent'>
                     <input
                       id='primaryFocusPeriod-noon'
                       type='radio'
@@ -216,9 +240,9 @@ export function CalibrationForm({ profile }: CalibrationFormProps) {
           </div>
 
           {/* Submit Button */}
-          <div className='flex items-center justify-end gap-3 border-t border-zinc-200 pt-4 dark:border-zinc-800'>
+          <div className='flex items-center justify-end gap-3 border-t border-border pt-4'>
             {state && state.ok && (
-              <p className='text-sm text-green-600 dark:text-green-400'>
+              <p className='text-sm text-green-600'>
                 Profile updated successfully!
               </p>
             )}

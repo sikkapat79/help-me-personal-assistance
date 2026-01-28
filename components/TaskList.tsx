@@ -1,4 +1,5 @@
-import { getEntityManager } from '@/lib/db/mikro-orm';
+import { Not } from 'typeorm';
+import { getRepository } from '@/lib/db/connection';
 import { Task } from '@/lib/db/entities/Task';
 import { TaskStatus } from '@/lib/features/tasks/schema';
 import { TaskCard } from './TaskCard';
@@ -23,19 +24,19 @@ function EmptyState() {
 }
 
 export async function TaskList() {
-  const em = await getEntityManager();
+  const taskRepo = await getRepository(Task);
   const activeProfileId = await requireActiveProfileId();
 
-  const tasks = await em.find(
-    Task,
-    {
-      owner: activeProfileId,
-      status: { $ne: TaskStatus.Completed },
+  const tasks = await taskRepo.find({
+    where: {
+      owner: { id: activeProfileId },
+      status: Not(TaskStatus.Completed),
     },
-    {
-      orderBy: [{ dueAt: 'ASC' }, { createdAt: 'DESC' }],
+    order: {
+      dueAt: 'ASC',
+      createdAt: 'DESC',
     },
-  );
+  });
 
   if (tasks.length === 0) {
     return <EmptyState />;

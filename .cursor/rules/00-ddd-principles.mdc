@@ -1,0 +1,61 @@
+---
+description: Domain-Driven Design principles for this project
+alwaysApply: true
+---
+
+## DDD Principles
+
+### Domain models control their own behavior
+
+**Core principle**: Domain behavior should be explicit in domain code, not hidden in database/ORM configuration.
+
+### Timestamp management example
+
+❌ **Bad - ORM magic (hidden behavior)**:
+```typescript
+@Entity()
+export class Task {
+  @UpdateDateColumn() // Hidden - when does this update?
+  updatedAt!: Date;
+  
+  updateStatus(status: TaskStatus) {
+    this.status = status;
+    // updatedAt magically updated by ORM
+  }
+}
+```
+
+✅ **Good - Domain model controls behavior**:
+```typescript
+@Entity()
+export class Task {
+  @Column({ type: 'timestamptz', name: 'updated_at' })
+  updatedAt!: Date;
+  
+  updateStatus(status: TaskStatus) {
+    this.status = status;
+    this.updatedAt = new Date(); // Explicit control
+  }
+}
+```
+
+### Why this matters
+
+1. **Explicitness**: Anyone reading domain methods knows exactly what changes
+2. **Testability**: Easy to verify behavior without mocking ORM
+3. **Control**: Domain logic isn't coupled to ORM implementation details
+4. **Consistency**: Same pattern across all domain methods
+
+### General rule
+
+If a change to an entity represents a domain event or business operation, the entity method should explicitly handle all state changes, including audit fields like timestamps.
+
+### When to use ORM features
+
+ORM features (like automatic ID generation, relations) are fine for:
+- Technical concerns (primary keys, foreign keys)
+- Data structure (relationships, column mappings)
+
+Avoid ORM features for:
+- Business logic (validation, state transitions)
+- Domain behavior (audit trails, timestamps)
