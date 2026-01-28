@@ -41,11 +41,14 @@ jobs:
       - name: Lint
         run: pnpm lint
 
-      - name: Build (Next.js)
-        run: pnpm build
-
-      - name: Pull Vercel environment (preview)
-        run: pnpm dlx vercel@latest pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+      # NOTE:
+      # - We build on GitHub and deploy a prebuilt artifact.
+      # - We do NOT pull Vercel env files onto the runner (secrets stay on Vercel).
+      # - The app must not require DB secrets at build time (no DB-backed SSG).
+      - name: Prepare Vercel project config (no env pull)
+        run: |
+          mkdir -p .vercel
+          node -e "require('fs').writeFileSync('.vercel/project.json', JSON.stringify({ orgId: process.env.VERCEL_ORG_ID, projectId: process.env.VERCEL_PROJECT_ID }, null, 2))"
 
       - name: Build for Vercel (prebuilt output)
         run: pnpm dlx vercel@latest build --token=${{ secrets.VERCEL_TOKEN }}
@@ -80,11 +83,14 @@ jobs:
       - name: Lint
         run: pnpm lint
 
-      - name: Build (Next.js)
-        run: pnpm build
-
-      - name: Pull Vercel environment (production)
-        run: pnpm dlx vercel@latest pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      # NOTE:
+      # - We build on GitHub and deploy a prebuilt artifact.
+      # - We do NOT pull Vercel env files onto the runner (secrets stay on Vercel).
+      # - The app must not require DB secrets at build time (no DB-backed SSG).
+      - name: Prepare Vercel project config (no env pull)
+        run: |
+          mkdir -p .vercel
+          node -e "require('fs').writeFileSync('.vercel/project.json', JSON.stringify({ orgId: process.env.VERCEL_ORG_ID, projectId: process.env.VERCEL_PROJECT_ID }, null, 2))"
 
       - name: Build for Vercel (prebuilt output)
         run: pnpm dlx vercel@latest build --prod --token=${{ secrets.VERCEL_TOKEN }}
