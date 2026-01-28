@@ -1,9 +1,8 @@
 import 'reflect-metadata';
 
 import { MikroORM } from '@mikro-orm/core';
-import ormConfig from '../../mikro-orm.config';
 type OrmCache = {
-  orm: MikroORM;
+  ormPromise: Promise<MikroORM>;
 };
 
 declare global {
@@ -11,11 +10,14 @@ declare global {
 }
 
 async function initOrm(): Promise<MikroORM> {
-  return MikroORM.init(ormConfig);
+  // Lazy-load config so DB env is only read at runtime (not at import/build time).
+  const { getOrmConfig } = await import('@/lib/db/orm-config');
+  return MikroORM.init(getOrmConfig());
 }
 
 export async function getOrm(): Promise<MikroORM> {
-  return initOrm();
+  globalThis.__mikroOrmCache ??= { ormPromise: initOrm() };
+  return globalThis.__mikroOrmCache.ormPromise;
 }
 
 export async function getEntityManager() {

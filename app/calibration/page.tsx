@@ -3,6 +3,8 @@ import { getUserProfileById } from '@/lib/features/profile/use-cases/getUserProf
 import { CalibrationForm } from './_components/CalibrationForm';
 import { redirect } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 export default async function CalibrationPage() {
   const profileId = await requireActiveProfileId();
   const profileResult = await getUserProfileById(profileId);
