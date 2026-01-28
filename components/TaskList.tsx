@@ -2,6 +2,7 @@ import { getEntityManager } from '@/lib/db/mikro-orm';
 import { Task } from '@/lib/db/entities/Task';
 import { TaskStatus } from '@/lib/features/tasks/schema';
 import { TaskCard } from './TaskCard';
+import { requireActiveProfileId } from '@/lib/features/profile/activeProfile';
 
 function EmptyState() {
   return (
@@ -23,10 +24,14 @@ function EmptyState() {
 
 export async function TaskList() {
   const em = await getEntityManager();
+  const activeProfileId = await requireActiveProfileId();
 
   const tasks = await em.find(
     Task,
-    { status: { $ne: TaskStatus.Completed } },
+    {
+      owner: activeProfileId,
+      status: { $ne: TaskStatus.Completed },
+    },
     {
       orderBy: [{ dueAt: 'ASC' }, { createdAt: 'DESC' }],
     },

@@ -1,9 +1,7 @@
 import 'reflect-metadata';
 
 import { MikroORM } from '@mikro-orm/core';
-
 import ormConfig from '../../mikro-orm.config';
-
 type OrmCache = {
   orm: MikroORM;
 };

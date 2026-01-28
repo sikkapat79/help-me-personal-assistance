@@ -4,6 +4,8 @@ import type { TaskFormState } from '../types';
 import { Task } from '@/lib/db/entities/Task';
 import { getEntityManager } from '@/lib/db/mikro-orm';
 import { formDataToObject, zodFieldErrors } from '@/lib/validation/forms';
+import { requireActiveProfileId } from '@/lib/features/profile/activeProfile';
+import { getUserProfileById } from '@/lib/features/profile/use-cases/getUserProfileById';
 
 const initialValues: Partial<CreateTaskInput> = {
   title: '',
@@ -34,7 +36,20 @@ export async function createTaskUseCase(
   try {
     const em = await getEntityManager();
 
+    // Get the active profile
+    const profileId = await requireActiveProfileId();
+    const profileResult = await getUserProfileById(profileId);
+
+    if (!profileResult.ok) {
+      return {
+        ok: false,
+        formError: 'Failed to find your profile. Please try again.',
+        values: parsed.data,
+      };
+    }
+
     const task = new Task({
+      owner: profileResult.data,
       title: parsed.data.title,
       description: parsed.data.description,
       intensity: parsed.data.intensity,

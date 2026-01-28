@@ -1,11 +1,15 @@
-import { Entity, PrimaryKey, Property, Enum } from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, Enum, ManyToOne } from '@mikro-orm/core';
 
 import { TaskIntensity, TaskStatus } from '@/lib/features/tasks/schema';
+import { UserProfile } from './UserProfile';
 
 @Entity()
 export class Task {
   @PrimaryKey({ type: 'uuid', nullable: true })
   id!: string;
+
+  @ManyToOne(() => UserProfile)
+  owner!: UserProfile;
 
   @Property({ type: 'string' })
   title: string;
@@ -34,12 +38,14 @@ export class Task {
   updatedAt: Date = new Date();
 
   constructor(data: {
+    owner: UserProfile;
     title: string;
     description?: string | null;
     intensity?: TaskIntensity;
     dueAt?: Date | null;
     tags?: string[];
   }) {
+    this.owner = data.owner;
     this.title = Task.normalizeTitle(data.title);
     this.description = data.description ?? null;
     this.intensity = data.intensity ?? TaskIntensity.QuickWin;
