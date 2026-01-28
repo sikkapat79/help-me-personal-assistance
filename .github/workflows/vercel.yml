@@ -41,24 +41,11 @@ jobs:
       - name: Lint
         run: pnpm lint
 
-      - name: Build (Next.js)
-        run: pnpm build
-
       - name: Pull Vercel environment (preview)
         run: pnpm dlx vercel@latest pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Build (Next.js)
-        run: |
-          set -a
-          [ -f .vercel/.env.preview.local ] && . ./.vercel/.env.preview.local
-          set +a
-          pnpm build
-
-      - name: Build for Vercel (prebuilt output)
-        run: pnpm dlx vercel@latest build --yes --token=${{ secrets.VERCEL_TOKEN }}
-
       - name: Deploy (preview)
-        run: pnpm dlx vercel@latest deploy --prebuilt --yes --token=${{ secrets.VERCEL_TOKEN }}
+        run: pnpm dlx vercel@latest deploy --yes --token=${{ secrets.VERCEL_TOKEN }}
 
   deploy_production:
     name: Production (main)
@@ -87,21 +74,8 @@ jobs:
       - name: Lint
         run: pnpm lint
 
-      - name: Build (Next.js)
-        run: pnpm build
-
       - name: Pull Vercel environment (production)
         run: pnpm dlx vercel@latest pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Build (Next.js)
-        run: |
-          set -a
-          [ -f .vercel/.env.production.local ] && . ./.vercel/.env.production.local
-          set +a
-          pnpm build
-
-      - name: Build for Vercel (prebuilt output)
-        run: pnpm dlx vercel@latest build --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
-
       - name: Deploy (production)
-        run: pnpm dlx vercel@latest deploy --prebuilt --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
+        run: pnpm dlx vercel@latest deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
