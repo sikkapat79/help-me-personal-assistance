@@ -49,12 +49,13 @@ jobs:
         run: |
           mkdir -p .vercel
           node -e "require('fs').writeFileSync('.vercel/project.json', JSON.stringify({ orgId: process.env.VERCEL_ORG_ID, projectId: process.env.VERCEL_PROJECT_ID }, null, 2))"
+          node -e "require('fs').accessSync('.vercel/project.json'); console.log('Wrote .vercel/project.json')"
 
       - name: Build for Vercel (prebuilt output)
-        run: pnpm dlx vercel@latest build --token=${{ secrets.VERCEL_TOKEN }}
+        run: pnpm dlx vercel@latest build --yes --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy (preview)
-        run: pnpm dlx vercel@latest deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+        run: pnpm dlx vercel@latest deploy --prebuilt --yes --token=${{ secrets.VERCEL_TOKEN }}
 
   deploy_production:
     name: Production (main)
@@ -91,9 +92,10 @@ jobs:
         run: |
           mkdir -p .vercel
           node -e "require('fs').writeFileSync('.vercel/project.json', JSON.stringify({ orgId: process.env.VERCEL_ORG_ID, projectId: process.env.VERCEL_PROJECT_ID }, null, 2))"
+          node -e "require('fs').accessSync('.vercel/project.json'); console.log('Wrote .vercel/project.json')"
 
       - name: Build for Vercel (prebuilt output)
-        run: pnpm dlx vercel@latest build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: pnpm dlx vercel@latest build --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy (production)
-        run: pnpm dlx vercel@latest deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: pnpm dlx vercel@latest deploy --prebuilt --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
