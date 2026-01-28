@@ -41,15 +41,18 @@ jobs:
       - name: Lint
         run: pnpm lint
 
-      # NOTE:
-      # - We build on GitHub and deploy a prebuilt artifact.
-      # - We do NOT pull Vercel env files onto the runner (secrets stay on Vercel).
-      # - The app must not require DB secrets at build time (no DB-backed SSG).
-      - name: Prepare Vercel project config (no env pull)
+      - name: Build (Next.js)
+        run: pnpm build
+
+      - name: Pull Vercel environment (preview)
+        run: pnpm dlx vercel@latest pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build (Next.js)
         run: |
-          mkdir -p .vercel
-          node -e "require('fs').writeFileSync('.vercel/project.json', JSON.stringify({ orgId: process.env.VERCEL_ORG_ID, projectId: process.env.VERCEL_PROJECT_ID }, null, 2))"
-          node -e "require('fs').accessSync('.vercel/project.json'); console.log('Wrote .vercel/project.json')"
+          set -a
+          [ -f .vercel/.env.preview.local ] && . ./.vercel/.env.preview.local
+          set +a
+          pnpm build
 
       - name: Build for Vercel (prebuilt output)
         run: pnpm dlx vercel@latest build --yes --token=${{ secrets.VERCEL_TOKEN }}
@@ -84,15 +87,18 @@ jobs:
       - name: Lint
         run: pnpm lint
 
-      # NOTE:
-      # - We build on GitHub and deploy a prebuilt artifact.
-      # - We do NOT pull Vercel env files onto the runner (secrets stay on Vercel).
-      # - The app must not require DB secrets at build time (no DB-backed SSG).
-      - name: Prepare Vercel project config (no env pull)
+      - name: Build (Next.js)
+        run: pnpm build
+
+      - name: Pull Vercel environment (production)
+        run: pnpm dlx vercel@latest pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build (Next.js)
         run: |
-          mkdir -p .vercel
-          node -e "require('fs').writeFileSync('.vercel/project.json', JSON.stringify({ orgId: process.env.VERCEL_ORG_ID, projectId: process.env.VERCEL_PROJECT_ID }, null, 2))"
-          node -e "require('fs').accessSync('.vercel/project.json'); console.log('Wrote .vercel/project.json')"
+          set -a
+          [ -f .vercel/.env.production.local ] && . ./.vercel/.env.production.local
+          set +a
+          pnpm build
 
       - name: Build for Vercel (prebuilt output)
         run: pnpm dlx vercel@latest build --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
