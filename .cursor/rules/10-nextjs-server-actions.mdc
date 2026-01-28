@@ -27,4 +27,16 @@ alwaysApply: false
 ### Performance + caching basics
 - Assume actions can be called frequently; keep them efficient and avoid unnecessary DB connections.
 - Avoid putting large, long-running work in the request path; consider background jobs if needed later.
+- Use `revalidatePath()` after successful mutations to refresh server component data.
+
+### Optimistic updates pattern (use react-19-patterns skill for implementation)
+- Client Components: use `useOptimistic` + `useTransition` for instant feedback
+- Server Actions: handle mutation and return success/error
+- Call `revalidatePath()` to ensure optimistic state syncs with server
+- Provide micro-interactions: close modals, loading states, visual changes
+
+### Server-to-client data passing
+- Never pass entities with methods/toJSON to Client Components
+- Convert entities to plain objects in Server Components
+- Create serializable type definitions (e.g., `TaskData`) for props
 

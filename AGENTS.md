@@ -10,7 +10,7 @@ HelpMe is an AI personal assistant that helps a human decide what to do next by 
 
 ### Primary duties
 - Capture daily context (“morning check-in” / bio-calibration): sleep/rest quality and signals that inform today’s **EnergyBudget**.
-- Manage tasks: create/edit, status, due dates, intensity, and optional metadata (effort/tags).
+- Manage tasks: create/edit/complete, status, due dates, intensity, and optional metadata (effort/tags).
 - Prioritize tasks: produce a ranked list with short, explicit reasoning based on energy and constraints.
 - Run a daily loop: capacity-aware execution, timers, and feedback that adapts depletion.
 - Close the day: evening reflection summary and AI-driven prediction for tomorrow’s baseline.
@@ -106,4 +106,20 @@ flowchart TD
 - Avoid “god files”: keep files small and focused. Split large logic into feature modules, schemas/types, and use-cases.
 - Null-safety: `null` = absent (domain/DB). `""` = UI-only empty string. Normalize optional strings (trim, then empty → `null`) at boundaries.
 - Readability: use whitespace/proximity intentionally—group related lines, and separate different concerns with a single blank line.
+
+### React 19 patterns (see react-19-patterns skill for how-to)
+- Use `useOptimistic` for instant UI feedback on mutations
+- Wrap effect state updates in `startTransition`
+- Pass only plain objects to Client Components (convert entities first)
+- Call `revalidatePath()` after mutations
+
+### UX principle: Micro-interactions
+Every mutation must provide immediate visual feedback:
+- Close modals after successful submission
+- Show loading states (`isPending`)
+- Use optimistic updates for instant feedback
+- Disable controls during pending state
+- Apply visual state changes
+
+Anti-pattern: Silent mutations with no user feedback.
 

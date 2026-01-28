@@ -54,3 +54,16 @@ alwaysApply: true
   - convert empty string → `null` for optional fields
 - For required strings: reject `""` via validation (do not store `null`).
 
+### React 19 patterns (use react-19-patterns skill for implementation)
+- Use `useOptimistic` for instant UI feedback on mutations
+- Wrap effect state updates in `startTransition` to prevent cascading renders
+- Convert entities to plain objects before passing to Client Components
+- Call `revalidatePath()` after mutations to refresh server data
+
+### UX principle: Micro-interactions for mutations
+Every mutation must provide immediate visual feedback:
+- Close modals after successful submission
+- Show loading states (`isPending`)
+- Use optimistic updates for instant feedback
+- Disable controls during pending state
+- Apply visual state changes (strikethrough, opacity, etc.)

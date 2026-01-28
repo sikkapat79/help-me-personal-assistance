@@ -1,6 +1,12 @@
 'use client';
 
-import React, { useActionState, useState, useEffect, useRef } from 'react';
+import React, {
+  useActionState,
+  useState,
+  useEffect,
+  useRef,
+  useTransition,
+} from 'react';
 import { createTask } from '@/app/_actions/create-task';
 import { TaskIntensity } from '@/lib/features/tasks/schema';
 import {
@@ -61,6 +67,7 @@ export function TaskCreateModal() {
     createTask,
     initialState,
   );
+  const [, startTransition] = useTransition();
   const lastTaskIdRef = useRef<string | undefined>(undefined);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -72,8 +79,11 @@ export function TaskCreateModal() {
 
     lastTaskIdRef.current = state.taskId;
     formRef.current?.reset();
-    setOpen(false);
-    setIntensity(TaskIntensity.QuickWin);
+
+    startTransition(() => {
+      setOpen(false);
+      setIntensity(TaskIntensity.QuickWin);
+    });
   }, [state.ok, state.taskId]);
 
   return (
