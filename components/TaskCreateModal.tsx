@@ -61,18 +61,17 @@ export function TaskCreateModal() {
     createTask,
     initialState,
   );
-  const lastTaskIdRef = useRef<string | undefined>();
+  const lastTaskIdRef = useRef<string | undefined>(undefined);
+  const formRef = useRef<HTMLFormElement>(null);
 
   // Close modal on success (using ref to track previous taskId)
   useEffect(() => {
     if (!state.ok) {
       return;
     }
-    if (!state.taskId || state.taskId === lastTaskIdRef.current) {
-      return;
-    }
 
     lastTaskIdRef.current = state.taskId;
+    formRef.current?.reset();
     setOpen(false);
     setIntensity(TaskIntensity.QuickWin);
   }, [state.ok, state.taskId]);
@@ -87,7 +86,12 @@ export function TaskCreateModal() {
           <DialogTitle>New Objective</DialogTitle>
         </DialogHeader>
 
-        <form action={formAction} id='task-create-form' className='space-y-4'>
+        <form
+          ref={formRef}
+          action={formAction}
+          id='task-create-form'
+          className='space-y-4'
+        >
           {state.formError ? (
             <div className='rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800'>
               {state.formError}
