@@ -2,6 +2,8 @@ import { listUserProfiles } from '@/lib/features/profile/use-cases/listUserProfi
 import { ProfileList } from './_components/ProfileList';
 import { CreateProfileForm } from './_components/CreateProfileForm';
 
+export const dynamic = 'force-dynamic';
+
 export default async function SelectProfilePage() {
   const profilesResult = await listUserProfiles();
 

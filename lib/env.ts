@@ -1,20 +1,4 @@
-import { z } from 'zod';
-
 import { AppError } from '@/lib/errors';
-
-const dbUrlEnvSchema = z.object({
-  // Avoid deprecated z.string().url() typing surface; validate as a non-empty string.
-  // (We can harden this later with a custom URL parser if desired.)
-  DATABASE_URL: z.string().min(1),
-});
-
-const dbParamsEnvSchema = z.object({
-  DB_HOST: z.string().min(1),
-  DB_PORT: z.coerce.number().int().positive().default(5432),
-  DB_USER: z.string().min(1),
-  DB_PASSWORD: z.string().min(1),
-  DB_NAME: z.string().min(1),
-});
 
 type DbEnvParsed = {
   host: string;
@@ -24,66 +8,73 @@ type DbEnvParsed = {
   dbName: string;
 };
 
-const dbEnvSchema = z
-  .union([dbUrlEnvSchema, dbParamsEnvSchema])
-  .transform((env): DbEnvParsed => {
-    if ('DB_HOST' in env) {
-      return {
-        host: env.DB_HOST,
-        port: env.DB_PORT,
-        user: env.DB_USER,
-        password: env.DB_PASSWORD,
-        dbName: env.DB_NAME,
-      };
-    }
-    const url = new URL(env.DATABASE_URL);
+type BedrockEnvParsed = {
+  AWS_REGION: string;
+  AWS_ACCESS_KEY_ID: string;
+  AWS_SECRET_ACCESS_KEY: string;
+  BEDROCK_MODEL_ID: string;
+};
+
+export type DbEnv = DbEnvParsed;
+export type BedrockEnv = BedrockEnvParsed;
+
+let cachedDbEnv: DbEnv | undefined;
+let cachedBedrockEnv: BedrockEnv | undefined;
+
+function requireEnvString(key: string): string {
+  const value = process.env[key];
+  if (typeof value === 'string' && value.trim().length > 0) return value;
+
+  throw new AppError('ENV_INVALID', `Missing environment variable: ${key}`, {
+    cause: { [key]: ['Required'] },
+  });
+}
+
+export function getDbEnv(): DbEnv {
+  if (cachedDbEnv) return cachedDbEnv;
+
+  const databaseUrl = process.env.DATABASE_URL;
+  if (typeof databaseUrl === 'string' && databaseUrl.trim().length > 0) {
+    const url = new URL(databaseUrl);
     const dbName = url.pathname.slice(1).replace(/\/.*$/, '') || 'postgres';
-    return {
+
+    cachedDbEnv = {
       host: url.hostname,
       port: url.port ? Number.parseInt(url.port, 10) : 5432,
       user: decodeURIComponent(url.username),
       password: decodeURIComponent(url.password),
       dbName,
     };
-  });
 
-const bedrockEnvSchema = z.object({
-  AWS_REGION: z.string().min(1),
-  AWS_ACCESS_KEY_ID: z.string().min(1),
-  AWS_SECRET_ACCESS_KEY: z.string().min(1),
-  BEDROCK_MODEL_ID: z.string().min(1),
-});
-
-export type DbEnv = DbEnvParsed;
-export type BedrockEnv = z.infer<typeof bedrockEnvSchema>;
-
-let cachedDbEnv: DbEnv | undefined;
-let cachedBedrockEnv: BedrockEnv | undefined;
-
-export function getDbEnv(): DbEnv {
-  if (cachedDbEnv) return cachedDbEnv;
-  const parsed = dbEnvSchema.safeParse(process.env);
-  if (!parsed.success) {
-    throw new AppError(
-      'ENV_INVALID',
-      'Invalid database environment variables',
-      {
-        cause: parsed.error,
-      },
-    );
+    return cachedDbEnv;
   }
-  cachedDbEnv = parsed.data;
+
+  const host = requireEnvString('DB_HOST');
+  const user = requireEnvString('DB_USER');
+  const password = requireEnvString('DB_PASSWORD');
+  const dbName = requireEnvString('DB_NAME');
+  const portRaw = process.env.DB_PORT;
+  const port = portRaw ? Number.parseInt(portRaw, 10) : 5432;
+
+  if (!Number.isFinite(port) || port <= 0) {
+    throw new AppError('ENV_INVALID', 'Invalid environment variable: DB_PORT', {
+      cause: { DB_PORT: ['Must be a positive integer'] },
+    });
+  }
+
+  cachedDbEnv = { host, port, user, password, dbName };
   return cachedDbEnv;
 }
 
 export function getBedrockEnv(): BedrockEnv {
   if (cachedBedrockEnv) return cachedBedrockEnv;
-  const parsed = bedrockEnvSchema.safeParse(process.env);
-  if (!parsed.success) {
-    throw new AppError('ENV_INVALID', 'Invalid Bedrock environment variables', {
-      cause: parsed.error,
-    });
-  }
-  cachedBedrockEnv = parsed.data;
+
+  cachedBedrockEnv = {
+    AWS_REGION: requireEnvString('AWS_REGION'),
+    AWS_ACCESS_KEY_ID: requireEnvString('AWS_ACCESS_KEY_ID'),
+    AWS_SECRET_ACCESS_KEY: requireEnvString('AWS_SECRET_ACCESS_KEY'),
+    BEDROCK_MODEL_ID: requireEnvString('BEDROCK_MODEL_ID'),
+  };
+
   return cachedBedrockEnv;
 }
