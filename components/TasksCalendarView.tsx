@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { Calendar, dayjsLocalizer } from 'react-big-calendar';
 import type { View } from 'react-big-calendar';
 import dayjs from 'dayjs';
 import type { TaskData } from '@/lib/features/tasks/types';
 import { TaskFormModal } from './TaskFormModal';
+import type { CalendarViewMode } from '@/app/(app)/tasks/page';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 const localizer = dayjsLocalizer(dayjs);
@@ -45,12 +47,39 @@ function tasksToEvents(tasks: TaskData[]): CalendarEvent[] {
   return out;
 }
 
-export function TasksCalendarView({ tasks }: Readonly<{ tasks: TaskData[] }>) {
-  const [view, setView] = useState<View>('month');
-  const [date, setDate] = useState(() => new Date());
+export function TasksCalendarView({
+  tasks,
+  initialDate,
+  initialView,
+}: Readonly<{
+  tasks: TaskData[];
+  initialDate: string;
+  initialView: CalendarViewMode;
+}>) {
+  const router = useRouter();
   const [editTask, setEditTask] = useState<TaskData | null>(null);
+  const view: View = initialView === 'month' ? 'month' : 'week';
+  const date = useMemo(
+    () =>
+      dayjs(initialDate).isValid() ? dayjs(initialDate).toDate() : new Date(),
+    [initialDate],
+  );
 
   const events = useMemo(() => tasksToEvents(tasks), [tasks]);
+
+  const handleNavigate = (d: Date) => {
+    const next = dayjs(d).format('YYYY-MM-DD');
+    router.push(
+      `/tasks?view=calendar&calendarDate=${next}&calendarView=${initialView}`,
+    );
+  };
+
+  const handleView = (v: View) => {
+    const nextView: CalendarViewMode = v === 'month' ? 'month' : 'week';
+    router.push(
+      `/tasks?view=calendar&calendarDate=${initialDate}&calendarView=${nextView}`,
+    );
+  };
 
   return (
     <>
@@ -65,9 +94,9 @@ export function TasksCalendarView({ tasks }: Readonly<{ tasks: TaskData[] }>) {
           localizer={localizer}
           events={events}
           view={view}
-          onView={setView}
+          onView={handleView}
           date={date}
-          onNavigate={setDate}
+          onNavigate={handleNavigate}
           views={['month', 'week']}
           startAccessor='start'
           endAccessor='end'
