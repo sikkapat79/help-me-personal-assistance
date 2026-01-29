@@ -5,7 +5,7 @@ import { TaskStatus } from '@/lib/features/tasks/schema';
 import { TaskCard } from './TaskCard';
 import { requireActiveProfileId } from '@/lib/features/profile/activeProfile';
 import { getUserProfileById } from '@/lib/features/profile/use-cases/getUserProfileById';
-import { getYyyyMmDdInTimeZone } from '@/lib/time';
+import { getYyyyMmDdInTimeZone, isDueOnOrBefore } from '@/lib/time';
 import { getDailyPlanForDate } from '@/lib/features/plan/use-cases/getDailyPlanForDate';
 
 function EmptyState() {
@@ -57,7 +57,11 @@ export async function TaskList() {
     }),
   ]);
 
-  if (tasks.length === 0) {
+  const filtered = tasks.filter(
+    (t) => t.dueAt != null && isDueOnOrBefore(t.dueAt, today, timeZone),
+  );
+
+  if (filtered.length === 0) {
     return <EmptyState />;
   }
 
@@ -70,13 +74,13 @@ export async function TaskList() {
 
   if (usePlanOrder) {
     rankedIds.forEach((id, i) => rankMap.set(id, i));
-    const inPlan = tasks.filter((t) => rankMap.has(t.id));
-    const notInPlan = tasks.filter((t) => !rankMap.has(t.id));
+    const inPlan = filtered.filter((t) => rankMap.has(t.id));
+    const notInPlan = filtered.filter((t) => !rankMap.has(t.id));
     inPlan.sort((a, b) => (rankMap.get(a.id) ?? 0) - (rankMap.get(b.id) ?? 0));
     notInPlan.sort(sortByDueAtThenCreatedAt);
     orderedTasks = [...inPlan, ...notInPlan];
   } else {
-    orderedTasks = tasks;
+    orderedTasks = filtered;
   }
 
   const taskReasoning = usePlanOrder ? (plan?.taskReasoning ?? {}) : {};

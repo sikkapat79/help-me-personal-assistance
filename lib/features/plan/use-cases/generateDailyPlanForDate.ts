@@ -14,6 +14,7 @@ import {
   buildPrioritizationPrompt,
   type TaskForPrompt,
 } from '@/lib/features/plan/buildPrioritizationPrompt';
+import { isDueOnOrBefore } from '@/lib/time';
 
 const ALGORITHM_VERSION_HEURISTIC = 'v1-det-heuristic';
 const ALGORITHM_VERSION_LLM = 'v2-llm';
@@ -209,6 +210,11 @@ export async function generateDailyPlanForDate(
       );
     }
 
+    const profileResult = await getUserProfileById(ownerId);
+    const timeZone = profileResult.ok
+      ? (profileResult.data.timeZone ?? 'UTC')
+      : 'UTC';
+
     const tasks = await taskRepo.find({
       where: {
         owner: { id: ownerId },
@@ -216,8 +222,15 @@ export async function generateDailyPlanForDate(
       },
     });
 
-    if (tasks.length === 0) {
-      console.warn('No tasks found for this date', { ownerId, planDate });
+    const filtered = tasks.filter(
+      (t) => t.dueAt != null && isDueOnOrBefore(t.dueAt, planDate, timeZone),
+    );
+
+    if (filtered.length === 0) {
+      console.warn('No today-or-overdue tasks for this date', {
+        ownerId,
+        planDate,
+      });
       // If there are no tasks, still upsert an empty plan so UI can show an explicit empty state.
       const existingEmptyPlan = await planRepo.findOne({
         where: {
@@ -250,7 +263,7 @@ export async function generateDailyPlanForDate(
       return ok(emptyPlan);
     }
 
-    const taskIdSet = new Set(tasks.map((t) => t.id));
+    const taskIdSet = new Set(filtered.map((t) => t.id));
     let rankedTaskIds: string[];
     let taskReasoning: Record<string, string>;
     let algorithmVersion: string;
@@ -259,7 +272,7 @@ export async function generateDailyPlanForDate(
     const llmResult = await tryLlmPrioritization(
       ownerId,
       checkIn,
-      tasks,
+      filtered,
       taskIdSet,
     );
 
@@ -270,7 +283,7 @@ export async function generateDailyPlanForDate(
       reasoningSummary = llmResult.reasoningSummary;
     } else {
       const scored = scoreTasksDeterministically(
-        tasks,
+        filtered,
         checkIn.energyBudget,
         planDate,
       );

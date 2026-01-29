@@ -39,3 +39,17 @@ export function getMinutesSinceMidnightInTimeZone(timeZone: string): number {
   const now = dayjs().tz(tz);
   return now.hour() * 60 + now.minute();
 }
+
+/**
+ * Whether a due date falls on or before today (YYYY-MM-DD) in the given timezone.
+ * Use for "today + overdue" filtering. Callers must exclude dueAt == null.
+ */
+export function isDueOnOrBefore(
+  dueAt: Date,
+  todayYyyyMmDd: string,
+  timeZone: string,
+): boolean {
+  const tz = safeTimeZoneOrUtc(timeZone);
+  const dueYyyyMmDd = dayjs(dueAt).tz(tz).format('YYYY-MM-DD');
+  return dueYyyyMmDd <= todayYyyyMmDd;
+}
