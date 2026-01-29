@@ -20,7 +20,9 @@ function getTypeOrmConfig(): DataSourceOptions {
     },
     // Explicitly list entities - required for Next.js/Vercel compatibility
     entities: [Task, UserProfile, DailyCheckIn],
-    // Migrations removed from runtime config - use typeorm-config.cli.ts for CLI operations
+    // Migrations for CLI usage only
+    migrations: [__dirname + '/migrations/*.ts'],
+    migrationsTableName: 'typeorm_migrations',
     synchronize: false, // Never auto-sync in production
     logging: isDevelopment ? ['query', 'error', 'warn'] : ['error'],
 
@@ -34,5 +36,5 @@ function getTypeOrmConfig(): DataSourceOptions {
   };
 }
 
-// Create DataSource instance
+// Create DataSource instance for CLI usage
 export const AppDataSource = new DataSource(getTypeOrmConfig());

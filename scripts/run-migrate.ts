@@ -1,7 +1,7 @@
 #!/usr/bin/env tsx
 /**
  * Run TypeORM migrations with environment variables loaded from .env.local
- * 
+ *
  * Usage: npx tsx scripts/run-migrate.ts
  */
 
@@ -15,10 +15,10 @@ if (fs.existsSync(envPath)) {
   envContent.split('\n').forEach((line) => {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith('#')) return;
-    
+
     const [key, ...valueParts] = trimmed.split('=');
     const value = valueParts.join('=');
-    
+
     if (key && value && !process.env[key]) {
       process.env[key] = value;
     }
@@ -30,7 +30,7 @@ if (fs.existsSync(envPath)) {
 
 // Import AFTER env vars are set
 import 'reflect-metadata';
-import { AppDataSource } from '../lib/db/typeorm-config';
+import { AppDataSource } from '../lib/db/typeorm-config.cli';
 
 async function runMigrations() {
   try {
@@ -40,7 +40,7 @@ async function runMigrations() {
 
     console.log('Running migrations...');
     const migrations = await AppDataSource.runMigrations();
-    
+
     if (migrations.length === 0) {
       console.log('✓ No pending migrations');
     } else {

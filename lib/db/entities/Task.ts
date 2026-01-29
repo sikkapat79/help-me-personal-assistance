@@ -14,7 +14,7 @@ export class Task {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @ManyToOne(() => UserProfile, { nullable: false })
+  @ManyToOne(() => UserProfile)
   @JoinColumn({ name: 'owner_id' })
   owner!: UserProfile;
 

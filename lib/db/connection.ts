@@ -6,19 +6,24 @@ import {
 } from 'typeorm';
 import { AppDataSource } from './typeorm-config';
 
-let isInitialized = false;
+let initializePromise: Promise<typeof AppDataSource> | null = null;
 
 /**
  * Get the initialized DataSource singleton.
  * Initializes on first call, then returns the cached instance.
+ * Uses a promise-based guard to prevent concurrent initialization in serverless environments.
  */
 export async function getDataSource() {
-  if (!isInitialized) {
-    await AppDataSource.initialize();
-    isInitialized = true;
-    console.log('[TypeORM] Database connection initialized successfully');
+  if (!initializePromise) {
+    initializePromise = (async () => {
+      if (!AppDataSource.isInitialized) {
+        await AppDataSource.initialize();
+        console.log('[TypeORM] Database connection initialized successfully');
+      }
+      return AppDataSource;
+    })();
   }
-  return AppDataSource;
+  return initializePromise;
 }
 
 /**
@@ -52,9 +57,14 @@ export async function withTransaction<Result>(
  * Useful for cleanup in tests or graceful shutdown.
  */
 export async function closeConnection(): Promise<void> {
-  if (isInitialized && AppDataSource.isInitialized) {
+  // Wait for any pending initialization to complete
+  if (initializePromise) {
+    await initializePromise;
+  }
+
+  if (AppDataSource.isInitialized) {
     await AppDataSource.destroy();
-    isInitialized = false;
+    initializePromise = null;
     console.log('[TypeORM] Database connection closed');
   }
 }

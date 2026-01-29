@@ -8,10 +8,10 @@
     "start": "next start",
     "lint": "eslint",
     "db:migrate": "node --env-file=.env.local --import tsx scripts/run-migrate.ts",
-    "db:migrate:run": "npx tsx -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d lib/db/typeorm-config.ts",
+    "db:migrate:run": "npx tsx -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d lib/db/typeorm-config.cli.ts",
     "db:migration:create": "npx tsx -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:create",
-    "db:migration:generate": "npx tsx -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:generate -d lib/db/typeorm-config.ts",
-    "db:schema:sync": "npx tsx -r tsconfig-paths/register ./node_modules/typeorm/cli.js schema:sync -d lib/db/typeorm-config.ts"
+    "db:migration:generate": "npx tsx -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:generate -d lib/db/typeorm-config.cli.ts",
+    "db:schema:sync": "npx tsx -r tsconfig-paths/register ./node_modules/typeorm/cli.js schema:sync -d lib/db/typeorm-config.cli.ts"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.975.0",
