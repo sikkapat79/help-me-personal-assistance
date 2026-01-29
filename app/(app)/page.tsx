@@ -42,6 +42,7 @@ export default async function HomePage() {
       restQuality1to10: checkInResult.data.restQuality1to10,
       morningMood: checkInResult.data.morningMood,
       energyBudget: checkInResult.data.energyBudget,
+      sleepNotes: checkInResult.data.sleepNotes ?? null,
       createdAt: checkInResult.data.createdAt,
       updatedAt: checkInResult.data.updatedAt,
     };

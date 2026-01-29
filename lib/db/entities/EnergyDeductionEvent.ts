@@ -5,7 +5,7 @@ import { UserProfile } from './UserProfile';
 import { Task } from './Task';
 
 /** Post-task capacity state (same values as MorningMood for consistency). */
-export type CapacityStateAfter = 'Fresh' | 'Tired' | 'Taxed';
+export type CapacityStateAfter = 'Fresh' | 'Neutral' | 'Tired' | 'Taxed';
 
 @Entity('energy_deduction_event')
 export class EnergyDeductionEvent {

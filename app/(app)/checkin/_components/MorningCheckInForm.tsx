@@ -10,11 +10,13 @@ import React, {
 import { useRouter } from 'next/navigation';
 import { submitMorningCheckInAction } from '@/app/_actions/submit-morning-checkin';
 import { MorningMood } from '@/lib/features/checkin/schema';
+import { getMorningMoodDisplay } from '@/lib/features/checkin/morningMoodDisplay';
 import { suggestEnergyBudget } from '@/lib/features/checkin/suggestEnergyBudget';
 import { DailyCheckInData } from '@/lib/features/checkin/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/lib/hooks/use-toast';
 
 interface MorningCheckInFormProps {
@@ -38,6 +40,9 @@ export function MorningCheckInForm({
   );
   const [morningMood, setMorningMood] = useState<MorningMood>(
     existingCheckIn?.morningMood ?? MorningMood.Fresh,
+  );
+  const [sleepNotes, setSleepNotes] = useState<string>(
+    existingCheckIn?.sleepNotes ?? '',
   );
 
   // Calculate energy budget from current inputs
@@ -120,14 +125,39 @@ export function MorningCheckInForm({
           )}
         </div>
 
+        {/* Previous night / sleep notes (optional) */}
+        <div>
+          <Label htmlFor='sleepNotes' className='text-sm font-medium'>
+            How was your sleep?
+          </Label>
+          <p className='mt-1 text-xs text-muted-foreground'>
+            Optional: describe your night or how you slept (e.g. woke at 3am,
+            vivid dreams).
+          </p>
+          <Textarea
+            id='sleepNotes'
+            name='sleepNotes'
+            placeholder='e.g. Slept well, woke once...'
+            value={sleepNotes}
+            onChange={(e) => setSleepNotes(e.target.value)}
+            className='mt-3 min-h-[80px] resize-y'
+            rows={3}
+          />
+          {state && !state.ok && state.fieldErrors?.sleepNotes && (
+            <p className='mt-1 text-sm text-red-600'>
+              {state.fieldErrors.sleepNotes}
+            </p>
+          )}
+        </div>
+
         {/* Morning Mood */}
         <div>
           <Label className='text-sm font-medium'>Morning Mood</Label>
           <p className='mt-1 text-xs text-muted-foreground'>
             How do you feel right now?
           </p>
-          <div className='mt-3 flex gap-3'>
-            <label className='flex flex-1 cursor-pointer items-center justify-center rounded-md border-2 border-input bg-background px-4 py-3 text-sm font-medium transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-primary-foreground hover:bg-accent'>
+          <div className='mt-3 flex flex-wrap gap-3'>
+            <label className='flex flex-1 min-w-0 cursor-pointer items-center justify-center rounded-md border-2 border-input bg-background px-4 py-3 text-sm font-medium transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-primary-foreground hover:bg-accent'>
               <input
                 type='radio'
                 name='morningMood'
@@ -136,9 +166,20 @@ export function MorningCheckInForm({
                 onChange={(e) => setMorningMood(e.target.value as MorningMood)}
                 className='sr-only'
               />
-              Fresh
+              {getMorningMoodDisplay(MorningMood.Fresh)}
             </label>
-            <label className='flex flex-1 cursor-pointer items-center justify-center rounded-md border-2 border-input bg-background px-4 py-3 text-sm font-medium transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-primary-foreground hover:bg-accent'>
+            <label className='flex flex-1 min-w-0 cursor-pointer items-center justify-center rounded-md border-2 border-input bg-background px-4 py-3 text-sm font-medium transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-primary-foreground hover:bg-accent'>
+              <input
+                type='radio'
+                name='morningMood'
+                value={MorningMood.Neutral}
+                checked={morningMood === MorningMood.Neutral}
+                onChange={(e) => setMorningMood(e.target.value as MorningMood)}
+                className='sr-only'
+              />
+              {getMorningMoodDisplay(MorningMood.Neutral)}
+            </label>
+            <label className='flex flex-1 min-w-0 cursor-pointer items-center justify-center rounded-md border-2 border-input bg-background px-4 py-3 text-sm font-medium transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-primary-foreground hover:bg-accent'>
               <input
                 type='radio'
                 name='morningMood'
@@ -147,9 +188,9 @@ export function MorningCheckInForm({
                 onChange={(e) => setMorningMood(e.target.value as MorningMood)}
                 className='sr-only'
               />
-              Tired
+              {getMorningMoodDisplay(MorningMood.Tired)}
             </label>
-            <label className='flex flex-1 cursor-pointer items-center justify-center rounded-md border-2 border-input bg-background px-4 py-3 text-sm font-medium transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-primary-foreground hover:bg-accent'>
+            <label className='flex flex-1 min-w-0 cursor-pointer items-center justify-center rounded-md border-2 border-input bg-background px-4 py-3 text-sm font-medium transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-primary-foreground hover:bg-accent'>
               <input
                 type='radio'
                 name='morningMood'
@@ -158,7 +199,7 @@ export function MorningCheckInForm({
                 onChange={(e) => setMorningMood(e.target.value as MorningMood)}
                 className='sr-only'
               />
-              Taxed
+              {getMorningMoodDisplay(MorningMood.Taxed)}
             </label>
           </div>
           {state && !state.ok && state.fieldErrors?.morningMood && (

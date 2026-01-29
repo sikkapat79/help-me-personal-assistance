@@ -8,10 +8,10 @@ import { suggestEnergyBudget } from '../suggestEnergyBudget';
 
 /**
  * Create or update a daily check-in for the given profile and date
- * 
+ *
  * If a check-in already exists for this profile + date, update it.
  * Otherwise, create a new check-in.
- * 
+ *
  * @param ownerId - User profile ID
  * @param input - Check-in data (validated)
  * @returns Result with the saved DailyCheckIn entity
@@ -34,7 +34,12 @@ export async function upsertDailyCheckIn(
     });
 
     // Calculate energy budget from inputs
-    const energyBudget = suggestEnergyBudget(input.restQuality1to10, input.morningMood);
+    const energyBudget = suggestEnergyBudget(
+      input.restQuality1to10,
+      input.morningMood,
+    );
+
+    const sleepNotes = input.sleepNotes ?? null;
 
     if (existingCheckIn) {
       // Update existing check-in
@@ -42,6 +47,7 @@ export async function upsertDailyCheckIn(
         restQuality1to10: input.restQuality1to10,
         morningMood: input.morningMood,
         energyBudget,
+        sleepNotes,
       });
 
       await checkInRepo.save(existingCheckIn);
@@ -59,6 +65,7 @@ export async function upsertDailyCheckIn(
         restQuality1to10: input.restQuality1to10,
         morningMood: input.morningMood,
         energyBudget,
+        sleepNotes,
       });
 
       await checkInRepo.save(newCheckIn);
@@ -66,7 +73,9 @@ export async function upsertDailyCheckIn(
     }
   } catch (cause) {
     return err(
-      new AppError('DATABASE_ERROR', 'Failed to save daily check-in', { cause })
+      new AppError('DATABASE_ERROR', 'Failed to save daily check-in', {
+        cause,
+      }),
     );
   }
 }

@@ -19,6 +19,7 @@ export async function submitMorningCheckInAction(
     checkInDate: formData.get('checkInDate'),
     restQuality1to10: formData.get('restQuality1to10'),
     morningMood: formData.get('morningMood'),
+    sleepNotes: formData.get('sleepNotes'),
   };
 
   // Validate with zod

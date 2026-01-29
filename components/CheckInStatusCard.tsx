@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { getMorningMoodDisplay } from '@/lib/features/checkin/morningMoodDisplay';
 import { DailyCheckInData } from '@/lib/features/checkin/types';
 
 interface CheckInStatusCardProps {
@@ -59,7 +60,8 @@ export function CheckInStatusCard({
               {checkIn.restQuality1to10}/10
             </div>
             <div>
-              <span className='font-medium'>Mood:</span> {checkIn.morningMood}
+              <span className='font-medium'>Mood:</span>{' '}
+              {getMorningMoodDisplay(checkIn.morningMood)}
             </div>
             <div className='rounded-md bg-green-100 px-2 py-1 dark:bg-green-900'>
               <span className='font-medium'>Energy:</span>{' '}

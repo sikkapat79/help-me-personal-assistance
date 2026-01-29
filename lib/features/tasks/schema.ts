@@ -45,3 +45,9 @@ export const createTaskSchema = z.object({
 });
 
 export type CreateTaskInput = z.infer<typeof createTaskSchema>;
+
+export const updateTaskSchema = createTaskSchema.extend({
+  taskId: z.string().uuid(),
+});
+
+export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;

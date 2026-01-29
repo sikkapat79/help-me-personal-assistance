@@ -82,6 +82,7 @@ async function tryLlmPrioritization(
       restQuality1to10: checkIn.restQuality1to10,
       morningMood: checkIn.morningMood,
       energyBudget: checkIn.energyBudget,
+      sleepNotes: checkIn.sleepNotes ?? undefined,
     },
     tasksForPrompt,
   );

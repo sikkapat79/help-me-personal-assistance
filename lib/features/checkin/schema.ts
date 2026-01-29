@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export enum MorningMood {
   Fresh = 'Fresh',
+  Neutral = 'Neutral',
   Tired = 'Tired',
   Taxed = 'Taxed',
 }
@@ -17,6 +18,13 @@ export const submitCheckInSchema = z.object({
     .min(1, 'Sleeping quality must be at least 1')
     .max(10, 'Sleeping quality must be at most 10'),
   morningMood: z.nativeEnum(MorningMood, { message: 'Invalid morning mood' }),
+  sleepNotes: z
+    .string()
+    .max(2000)
+    .optional()
+    .transform((s) =>
+      s === undefined || s?.trim() === '' ? undefined : s?.trim(),
+    ),
 });
 
 export type SubmitCheckInInput = z.infer<typeof submitCheckInSchema>;
