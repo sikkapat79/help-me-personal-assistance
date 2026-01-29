@@ -42,6 +42,9 @@ export class Task {
   @Column({ type: 'timestamptz', name: 'updated_at' })
   updatedAt!: Date;
 
+  @Column({ type: 'timestamptz', nullable: true, name: 'completed_at' })
+  completedAt!: Date | null;
+
   constructor(data?: {
     owner: UserProfile;
     title: string;
@@ -68,7 +71,14 @@ export class Task {
   // Pure domain methods (no DB/network)
   updateStatus(nextStatus: TaskStatus): void {
     this.status = nextStatus;
-    this.updatedAt = new Date();
+    const now = new Date();
+    if (nextStatus === TaskStatus.Completed) {
+      this.completedAt = now;
+    } else {
+      this.completedAt = null;
+    }
+
+    this.updatedAt = now;
   }
 
   reschedule(nextDueAt: Date | null): void {

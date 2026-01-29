@@ -37,6 +37,7 @@ export async function completeTaskWithEnergyAction(
   }
 
   revalidatePath('/');
+  revalidatePath('/tasks');
 
   return {
     ok: true,

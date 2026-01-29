@@ -101,6 +101,7 @@ export async function TaskList() {
       status: task.status,
       createdAt: task.createdAt,
       updatedAt: task.updatedAt,
+      completedAt: task.completedAt ?? null,
     };
     const idx = usePlanOrder ? rankMap.get(task.id) : undefined;
     const priorityIndex = idx === undefined ? undefined : idx + 1;

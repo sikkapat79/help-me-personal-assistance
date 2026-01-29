@@ -16,6 +16,7 @@ interface NavLink {
 
 const navLinks: NavLink[] = [
   { href: '/', label: 'Today' },
+  { href: '/tasks', label: 'Tasks' },
   { href: '/calibration', label: 'Calibration' },
 ];
 
@@ -92,8 +93,8 @@ export function AppTopNav({
               remainingEnergy={remainingEnergy ?? null}
             />
 
-            {/* Task Create Modal (only on home page) */}
-            {pathname === '/' && (
+            {/* Task Create Modal (home + tasks page) */}
+            {(pathname === '/' || pathname === '/tasks') && (
               <div className='hidden sm:block'>
                 <TaskCreateModal />
               </div>
@@ -153,8 +154,8 @@ export function AppTopNav({
                 </Link>
               ))}
 
-              {/* Task Create Modal (only on home page) */}
-              {pathname === '/' && (
+              {/* Task Create Modal (home + tasks page) */}
+              {(pathname === '/' || pathname === '/tasks') && (
                 <div className='px-3 py-2'>
                   <TaskCreateModal />
                 </div>

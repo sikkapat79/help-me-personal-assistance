@@ -37,6 +37,7 @@ export async function DonePanel() {
     status: task.status,
     createdAt: task.createdAt,
     updatedAt: task.updatedAt,
+    completedAt: task.completedAt ?? null,
   }));
 
   return (

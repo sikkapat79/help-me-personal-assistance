@@ -210,7 +210,20 @@ export function TaskCard({
               <StatusBadge status={optimisticStatus} />
               {task.dueAt && (
                 <span className='text-xs text-zinc-500 dark:text-zinc-400'>
-                  Due: {new Date(task.dueAt).toLocaleDateString()}
+                  Due:{' '}
+                  {new Date(task.dueAt).toLocaleString(undefined, {
+                    dateStyle: 'short',
+                    timeStyle: 'short',
+                  })}
+                </span>
+              )}
+              {isCompleted && task.completedAt && (
+                <span className='text-xs text-zinc-500 dark:text-zinc-400'>
+                  Done at{' '}
+                  {new Date(task.completedAt).toLocaleString(undefined, {
+                    dateStyle: 'short',
+                    timeStyle: 'short',
+                  })}
                 </span>
               )}
             </div>

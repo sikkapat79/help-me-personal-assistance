@@ -33,8 +33,8 @@ export async function updateTaskStatusAction(
     return result;
   }
 
-  // Revalidate the home page to refresh the task list
   revalidatePath('/');
+  revalidatePath('/tasks');
 
   return {
     ok: true,

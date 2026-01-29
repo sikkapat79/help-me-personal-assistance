@@ -29,6 +29,7 @@ export const createTaskSchema = z.object({
   dueAt: z
     .string()
     .nullable()
+    .optional()
     .transform((val) => (val ? new Date(val) : null)),
   tags: z
     .string()
