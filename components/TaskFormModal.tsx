@@ -9,7 +9,8 @@ import React, {
 } from 'react';
 import { createTask } from '@/app/_actions/create-task';
 import { updateTask } from '@/app/_actions/update-task';
-import { TaskIntensity } from '@/lib/features/tasks/schema';
+import { deleteTaskAction } from '@/app/_actions/delete-task';
+import { TaskIntensity, TaskStatus } from '@/lib/features/tasks/schema';
 import type { TaskData, TaskFormState } from '@/lib/features/tasks/types';
 import {
   Dialog,
@@ -28,6 +29,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useToast } from '@/lib/hooks/use-toast';
 
 const initialState: TaskFormState = {
@@ -76,6 +87,8 @@ export function TaskFormModal({
   task,
 }: TaskFormModalProps) {
   const [intensity, setIntensity] = useState<string>(TaskIntensity.QuickWin);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeletePending, setIsDeletePending] = useState(false);
   const [createState, createAction, isCreatePending] = useActionState(
     createTask,
     initialState,
@@ -86,7 +99,8 @@ export function TaskFormModal({
   );
   const state = mode === 'create' ? createState : updateState;
   const formAction = mode === 'create' ? createAction : updateAction;
-  const isPending = mode === 'create' ? isCreatePending : isUpdatePending;
+  const isPending =
+    mode === 'create' ? isCreatePending : isUpdatePending || isDeletePending;
   const [, startTransition] = useTransition();
   const lastTaskIdRef = useRef<string | undefined>(undefined);
   const formRef = useRef<HTMLFormElement>(null);
@@ -169,138 +183,215 @@ export function TaskFormModal({
     submitLabel = mode === 'edit' ? 'Save changes' : 'Schedule Task';
   }
 
+  const handleDeleteConfirm = async () => {
+    if (mode !== 'edit' || !task) return;
+    setIsDeletePending(true);
+    const result = await deleteTaskAction(task.id);
+    setIsDeletePending(false);
+    if (result.ok) {
+      setDeleteDialogOpen(false);
+      onOpenChange(false);
+      toast.success('Objective deleted', {
+        description: 'The objective has been removed.',
+      });
+    } else {
+      toast.error('Could not delete objective', {
+        description: result.error?.message ?? 'Please try again.',
+      });
+    }
+  };
+
+  const canDelete =
+    mode === 'edit' && task && task.status !== TaskStatus.Completed;
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        id={mode === 'edit' ? 'task-edit-modal' : 'task-create-modal'}
-        className='max-w-2xl'
-      >
-        <DialogHeader>
-          <DialogTitle>
-            {mode === 'edit' ? 'Edit objective' : 'New Objective'}
-          </DialogTitle>
-        </DialogHeader>
-        <form
-          ref={formRef}
-          action={formAction}
-          id={mode === 'edit' ? 'task-edit-form' : 'task-create-form'}
-          className='space-y-4'
-          key={
-            mode === 'edit' && task
-              ? `edit-${open}-${task.id}`
-              : `create-${open}`
-          }
-        >
-          {mode === 'edit' && task ? (
-            <input type='hidden' name='taskId' value={task.id} />
-          ) : null}
-          {state.formError ? (
-            <div className='rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800'>
-              {state.formError}
-            </div>
-          ) : null}
-
-          <div className='space-y-2'>
-            <Label htmlFor='task-title-input'>Project Name</Label>
-            <Input
-              id='task-title-input'
-              name='title'
-              defaultValue={defaultTitle}
-              placeholder='Enter task title...'
-              required
-            />
-            <FieldError message={state.fieldErrors?.title} />
-          </div>
-
-          <div className='space-y-2'>
-            <Label htmlFor='task-description-textarea'>
-              Brief description or outcome goal
-            </Label>
-            <Textarea
-              id='task-description-textarea'
-              name='description'
-              defaultValue={
-                typeof defaultDescription === 'string'
-                  ? defaultDescription
-                  : (defaultDescription ?? '')
-              }
-              placeholder='Describe what you want to achieve...'
-              rows={3}
-            />
-            <FieldError message={state.fieldErrors?.description} />
-          </div>
-
-          <div className='grid grid-cols-2 gap-4'>
-            <div className='space-y-2'>
-              <Label htmlFor='task-intensity-select'>Intensity</Label>
-              <Select
-                name='intensity'
-                value={intensity}
-                onValueChange={setIntensity}
+    <>
+      {canDelete ? (
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete objective?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This cannot be undone. The objective will be removed from your
+                list.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isDeletePending}>
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                type='button'
+                onClick={(e) => {
+                  e.preventDefault();
+                  void handleDeleteConfirm();
+                }}
+                className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
+                disabled={isDeletePending}
               >
-                <SelectTrigger id='task-intensity-select'>
-                  <SelectValue placeholder='Select intensity' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={TaskIntensity.QuickWin}>
-                    Quick Win
-                  </SelectItem>
-                  <SelectItem value={TaskIntensity.Routine}>Routine</SelectItem>
-                  <SelectItem value={TaskIntensity.DeepFocus}>
-                    Deep Focus
-                  </SelectItem>
-                  <SelectItem value={TaskIntensity.Meeting}>Meeting</SelectItem>
-                </SelectContent>
-              </Select>
-              <FieldError message={state.fieldErrors?.intensity} />
+                {isDeletePending ? 'Deleting...' : 'Delete'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      ) : null}
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent
+          id={mode === 'edit' ? 'task-edit-modal' : 'task-create-modal'}
+          className='max-w-2xl'
+        >
+          <DialogHeader>
+            <DialogTitle>
+              {mode === 'edit' ? 'Edit objective' : 'New Objective'}
+            </DialogTitle>
+          </DialogHeader>
+          <form
+            ref={formRef}
+            action={formAction}
+            id={mode === 'edit' ? 'task-edit-form' : 'task-create-form'}
+            className='space-y-4'
+            key={
+              mode === 'edit' && task
+                ? `edit-${open}-${task.id}`
+                : `create-${open}`
+            }
+          >
+            {mode === 'edit' && task ? (
+              <input type='hidden' name='taskId' value={task.id} />
+            ) : null}
+            {state.formError ? (
+              <div className='rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800'>
+                {state.formError}
+              </div>
+            ) : null}
+
+            <div className='space-y-2'>
+              <Label htmlFor='task-title-input'>Project Name</Label>
+              <Input
+                id='task-title-input'
+                name='title'
+                defaultValue={defaultTitle}
+                placeholder='Enter task title...'
+                required
+              />
+              <FieldError message={state.fieldErrors?.title} />
             </div>
 
             <div className='space-y-2'>
-              <Label htmlFor='task-dueAt-input'>Due date & time</Label>
-              <Input
-                id='task-dueAt-input'
-                name='dueAt'
-                type='datetime-local'
-                defaultValue={getDateTimeLocalDefaultValue(defaultDueAt)}
+              <Label htmlFor='task-description-textarea'>
+                Brief description or outcome goal
+              </Label>
+              <Textarea
+                id='task-description-textarea'
+                name='description'
+                defaultValue={
+                  typeof defaultDescription === 'string'
+                    ? defaultDescription
+                    : (defaultDescription ?? '')
+                }
+                placeholder='Describe what you want to achieve...'
+                rows={3}
               />
-              <FieldError message={state.fieldErrors?.dueAt} />
+              <FieldError message={state.fieldErrors?.description} />
             </div>
-          </div>
 
-          <div className='space-y-2'>
-            <Label htmlFor='task-tags-input'>
-              Tags{' '}
-              <span className='text-xs text-zinc-500'>(comma-separated)</span>
-            </Label>
-            <Input
-              id='task-tags-input'
-              name='tags'
-              placeholder='e.g., work, urgent, personal'
-              defaultValue={
-                Array.isArray(defaultTags)
-                  ? defaultTags.join(', ')
-                  : (defaultTags ?? '')
-              }
-            />
-            <FieldError message={state.fieldErrors?.tags} />
-          </div>
+            <div className='grid grid-cols-2 gap-4'>
+              <div className='space-y-2'>
+                <Label htmlFor='task-intensity-select'>Intensity</Label>
+                <Select
+                  name='intensity'
+                  value={intensity}
+                  onValueChange={setIntensity}
+                >
+                  <SelectTrigger id='task-intensity-select'>
+                    <SelectValue placeholder='Select intensity' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={TaskIntensity.QuickWin}>
+                      Quick Win
+                    </SelectItem>
+                    <SelectItem value={TaskIntensity.Routine}>
+                      Routine
+                    </SelectItem>
+                    <SelectItem value={TaskIntensity.DeepFocus}>
+                      Deep Focus
+                    </SelectItem>
+                    <SelectItem value={TaskIntensity.Meeting}>
+                      Meeting
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <FieldError message={state.fieldErrors?.intensity} />
+              </div>
 
-          <div className='flex justify-end gap-3 pt-4'>
-            <Button
-              type='button'
-              variant='outline'
-              onClick={() => onOpenChange(false)}
-              disabled={isPending}
-              id='cancel-task-button'
-            >
-              Cancel
-            </Button>
-            <Button type='submit' loading={isPending} id='submit-task-button'>
-              {submitLabel}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+              <div className='space-y-2'>
+                <Label htmlFor='task-dueAt-input'>Due date & time</Label>
+                <Input
+                  id='task-dueAt-input'
+                  name='dueAt'
+                  type='datetime-local'
+                  defaultValue={getDateTimeLocalDefaultValue(defaultDueAt)}
+                />
+                <FieldError message={state.fieldErrors?.dueAt} />
+              </div>
+            </div>
+
+            <div className='space-y-2'>
+              <Label htmlFor='task-tags-input'>
+                Tags{' '}
+                <span className='text-xs text-zinc-500'>(comma-separated)</span>
+              </Label>
+              <Input
+                id='task-tags-input'
+                name='tags'
+                placeholder='e.g., work, urgent, personal'
+                defaultValue={
+                  Array.isArray(defaultTags)
+                    ? defaultTags.join(', ')
+                    : (defaultTags ?? '')
+                }
+              />
+              <FieldError message={state.fieldErrors?.tags} />
+            </div>
+
+            <div className='flex flex-wrap items-center justify-between gap-3 pt-4'>
+              <div className='flex gap-3'>
+                {canDelete ? (
+                  <Button
+                    type='button'
+                    variant='ghost'
+                    className='text-destructive hover:bg-destructive/10 hover:text-destructive'
+                    onClick={() => setDeleteDialogOpen(true)}
+                    disabled={isPending}
+                    id='delete-task-button'
+                    aria-label='Delete objective'
+                  >
+                    Delete objective
+                  </Button>
+                ) : null}
+              </div>
+              <div className='flex gap-3'>
+                <Button
+                  type='button'
+                  variant='outline'
+                  onClick={() => onOpenChange(false)}
+                  disabled={isPending}
+                  id='cancel-task-button'
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type='submit'
+                  loading={isPending}
+                  id='submit-task-button'
+                >
+                  {submitLabel}
+                </Button>
+              </div>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

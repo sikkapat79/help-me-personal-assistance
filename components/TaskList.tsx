@@ -71,7 +71,9 @@ export async function TaskList() {
   }
 
   const plan = planResult.ok && planResult.data ? planResult.data : null;
-  const rankedIds = plan?.rankedTaskIds ?? [];
+  const rankedIds = (plan?.rankedTaskIds ?? []).filter((id) =>
+    filtered.some((t) => t.id === id),
+  );
   const usePlanOrder = rankedIds.length > 0;
 
   let orderedTasks: Task[];

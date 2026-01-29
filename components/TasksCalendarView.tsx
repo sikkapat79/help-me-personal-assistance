@@ -52,7 +52,10 @@ function groupTasksByDay(
     let ordered: TaskData[];
     if (usePlanOrder && todayRankedIds) {
       const rankMap = new Map<string, number>();
-      todayRankedIds.forEach((id, i) => rankMap.set(id, i));
+      const validRankedIds = todayRankedIds.filter((id) =>
+        dayTasks.some((t) => t.id === id),
+      );
+      validRankedIds.forEach((id, i) => rankMap.set(id, i));
       const inPlan = dayTasks.filter((t) => rankMap.has(t.id));
       const notInPlan = dayTasks.filter((t) => !rankMap.has(t.id));
       inPlan.sort(

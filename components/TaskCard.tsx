@@ -1,18 +1,29 @@
 'use client';
 
 import { useState, useTransition, useOptimistic } from 'react';
-import { Loader2, Pencil } from 'lucide-react';
+import { Loader2, Pencil, Trash2 } from 'lucide-react';
 import type { TaskData } from '@/lib/features/tasks/types';
 import { TaskIntensity, TaskStatus } from '@/lib/features/tasks/schema';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { updateTaskStatusAction } from '@/app/_actions/update-task-status';
 import { completeTaskWithEnergyAction } from '@/app/_actions/complete-task-with-energy';
+import { deleteTaskAction } from '@/app/_actions/delete-task';
 import {
   PostTaskEnergyDialog,
   type PostTaskEnergyChoice,
 } from '@/components/PostTaskEnergyDialog';
 import { TaskFormModal } from '@/components/TaskFormModal';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useToast } from '@/lib/hooks/use-toast';
 
 function IntensityBadge({ intensity }: Readonly<{ intensity: TaskIntensity }>) {
@@ -78,6 +89,8 @@ export function TaskCard({
 }: Readonly<{ task: TaskData; priorityIndex?: number; reasoning?: string }>) {
   const [openEnergyDialog, setOpenEnergyDialog] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeletePending, setIsDeletePending] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [optimisticStatus, setOptimisticStatus] = useOptimistic(
     task.status,
@@ -147,8 +160,51 @@ export function TaskCard({
     });
   };
 
+  const handleDeleteConfirm = async () => {
+    setIsDeletePending(true);
+    const result = await deleteTaskAction(task.id);
+    setIsDeletePending(false);
+    setDeleteDialogOpen(false);
+    if (result.ok) {
+      toast.success('Objective deleted', {
+        description: 'The objective has been removed.',
+      });
+    } else {
+      toast.error('Could not delete objective', {
+        description: result.error?.message ?? 'Please try again.',
+      });
+    }
+  };
+
   return (
     <>
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete objective?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This cannot be undone. The objective will be removed from your
+              list.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeletePending}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              type='button'
+              onClick={(e) => {
+                e.preventDefault();
+                void handleDeleteConfirm();
+              }}
+              className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
+              disabled={isDeletePending}
+            >
+              {isDeletePending ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <TaskFormModal
         open={editOpen}
         onOpenChange={setEditOpen}
@@ -240,16 +296,30 @@ export function TaskCard({
               </div>
             )}
           </div>
-          <Button
-            type='button'
-            variant='ghost'
-            size='icon'
-            className='shrink-0'
-            aria-label='Edit task'
-            onClick={() => setEditOpen(true)}
-          >
-            <Pencil className='h-4 w-4' aria-hidden />
-          </Button>
+          <div className='flex shrink-0 gap-1'>
+            {optimisticStatus === TaskStatus.Completed ? null : (
+              <Button
+                type='button'
+                variant='ghost'
+                size='icon'
+                aria-label='Delete objective'
+                onClick={() => setDeleteDialogOpen(true)}
+                disabled={isPending || isDeletePending}
+              >
+                <Trash2 className='h-4 w-4' aria-hidden />
+              </Button>
+            )}
+            <Button
+              type='button'
+              variant='ghost'
+              size='icon'
+              aria-label='Edit task'
+              onClick={() => setEditOpen(true)}
+              disabled={isPending || isDeletePending}
+            >
+              <Pencil className='h-4 w-4' aria-hidden />
+            </Button>
+          </div>
         </div>
       </div>
     </>
