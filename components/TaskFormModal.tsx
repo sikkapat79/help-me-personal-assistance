@@ -89,13 +89,13 @@ export function TaskFormModal({
   const formRef = useRef<HTMLFormElement>(null);
   const toast = useToast();
 
-  // Sync intensity when opening in edit mode with task
+  // Sync intensity when opening (non-blocking to avoid cascading renders)
   useEffect(() => {
     if (open && mode === 'edit' && task) {
-      setIntensity(task.intensity);
+      startTransition(() => setIntensity(task.intensity));
     }
     if (open && mode === 'create') {
-      setIntensity(TaskIntensity.QuickWin);
+      startTransition(() => setIntensity(TaskIntensity.QuickWin));
     }
   }, [open, mode, task]);
 
