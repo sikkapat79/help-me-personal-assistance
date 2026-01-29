@@ -14,15 +14,18 @@ let initializePromise: Promise<typeof AppDataSource> | null = null;
  * Uses a promise-based guard to prevent concurrent initialization in serverless environments.
  */
 export async function getDataSource() {
-  if (!initializePromise) {
-    initializePromise = (async () => {
-      if (!AppDataSource.isInitialized) {
-        await AppDataSource.initialize();
-        console.log('[TypeORM] Database connection initialized successfully');
-      }
-      return AppDataSource;
-    })();
+  if (initializePromise) {
+    return initializePromise;
   }
+
+  initializePromise = (async () => {
+    if (!AppDataSource.isInitialized) {
+      await AppDataSource.initialize();
+      console.log('[TypeORM] Database connection initialized successfully');
+    }
+    return AppDataSource;
+  })();
+
   return initializePromise;
 }
 

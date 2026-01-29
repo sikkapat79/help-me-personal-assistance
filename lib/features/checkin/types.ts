@@ -17,5 +17,10 @@ export interface DailyCheckInData {
  * Form state for check-in submission
  */
 export type CheckInFormState =
-  | { ok: true; message: string }
-  | { ok: false; formError: string; fieldErrors?: Record<string, string>; values?: Partial<DailyCheckInData> };
+  | { ok: true; message: string; warning?: string }
+  | {
+      ok: false;
+      formError: string;
+      fieldErrors?: Record<string, string>;
+      values?: Partial<DailyCheckInData>;
+    };
