@@ -64,6 +64,13 @@ function getDateTimeLocalDefaultValue(value: unknown): string {
   return '';
 }
 
+/** Start of today in local time (00:00:00). */
+function getStartOfToday(): Date {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 function FieldError({
   message,
 }: Readonly<{ message?: string }>): React.ReactNode | null {
@@ -171,7 +178,10 @@ export function TaskFormModal({
     const fallbackDesc = mode === 'edit' && task ? task.description : null;
     defaultDescription = state.values?.description ?? fallbackDesc ?? '';
     const fallbackDueAt = mode === 'edit' && task ? task.dueAt : null;
-    defaultDueAt = state.values?.dueAt ?? fallbackDueAt;
+    defaultDueAt =
+      state.values?.dueAt ??
+      fallbackDueAt ??
+      (mode === 'create' ? getStartOfToday() : null);
     const fallbackTags = mode === 'edit' && task ? task.tags : [];
     defaultTags = state.values?.tags ?? fallbackTags ?? [];
   }
