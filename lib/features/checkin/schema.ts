@@ -20,3 +20,18 @@ export const submitCheckInSchema = z.object({
 });
 
 export type SubmitCheckInInput = z.infer<typeof submitCheckInSchema>;
+
+/** Capacity state after completing a task (same as MorningMood). */
+export type CapacityStateAfter = MorningMood;
+
+/** Schema for complete-task-with-energy server action. */
+export const completeTaskWithEnergySchema = z.object({
+  taskId: z.string().uuid('Invalid task ID'),
+  capacityStateAfter: z.nativeEnum(MorningMood, {
+    message: 'Invalid capacity state',
+  }),
+});
+
+export type CompleteTaskWithEnergyInput = z.infer<
+  typeof completeTaskWithEnergySchema
+>;

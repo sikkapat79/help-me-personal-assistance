@@ -1,10 +1,15 @@
 'use client';
 
-import { useTransition, useOptimistic } from 'react';
+import { useState, useTransition, useOptimistic } from 'react';
 import type { TaskData } from '@/lib/features/tasks/types';
 import { TaskIntensity, TaskStatus } from '@/lib/features/tasks/schema';
 import { Checkbox } from '@/components/ui/checkbox';
 import { updateTaskStatusAction } from '@/app/_actions/update-task-status';
+import { completeTaskWithEnergyAction } from '@/app/_actions/complete-task-with-energy';
+import {
+  PostTaskEnergyDialog,
+  type PostTaskEnergyChoice,
+} from '@/components/PostTaskEnergyDialog';
 import { useToast } from '@/lib/hooks/use-toast';
 
 function IntensityBadge({ intensity }: Readonly<{ intensity: TaskIntensity }>) {
@@ -64,6 +69,7 @@ function StatusBadge({ status }: Readonly<{ status: TaskStatus }>) {
 }
 
 export function TaskCard({ task }: Readonly<{ task: TaskData }>) {
+  const [openEnergyDialog, setOpenEnergyDialog] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [optimisticStatus, setOptimisticStatus] = useOptimistic(
     task.status,
@@ -74,81 +80,122 @@ export function TaskCard({ task }: Readonly<{ task: TaskData }>) {
   const isCompleted = optimisticStatus === TaskStatus.Completed;
 
   const handleCheckboxChange = (checked: boolean) => {
-    const newStatus = checked ? TaskStatus.Completed : TaskStatus.Pending;
+    if (checked) {
+      setOpenEnergyDialog(true);
+      return;
+    }
 
     startTransition(async () => {
-      // Optimistically update the UI immediately
-      setOptimisticStatus(newStatus);
-
-      // Send update to server
-      const result = await updateTaskStatusAction(task.id, newStatus);
+      setOptimisticStatus(TaskStatus.Pending);
+      const result = await updateTaskStatusAction(task.id, TaskStatus.Pending);
 
       if (result.ok) {
-        const statusLabel = checked ? 'completed' : 'pending';
-        toast.info(`Task marked as ${statusLabel}`, {
-          description: task.title,
-        });
+        toast.info('Task marked as pending', { description: task.title });
       } else {
         console.error('Failed to update task status:', result.error);
         toast.error('Failed to update task', {
           description: result.error?.message || 'Could not update task status.',
         });
-        // The optimistic update will automatically revert when the component
-        // re-renders because task.status hasn't changed on the server
       }
-      // On success, the optimistic state will sync with the actual prop
-      // when the page refreshes or the component re-renders
+    });
+  };
+
+  const handleEnergyChoice = (choice: PostTaskEnergyChoice) => {
+    setOpenEnergyDialog(false);
+
+    if (choice === 'Skip') {
+      startTransition(async () => {
+        setOptimisticStatus(TaskStatus.Completed);
+        const result = await updateTaskStatusAction(
+          task.id,
+          TaskStatus.Completed,
+        );
+        if (result.ok) {
+          toast.info('Task marked as completed', { description: task.title });
+        } else {
+          toast.error('Failed to complete task', {
+            description: result.error?.message ?? 'Could not complete task.',
+          });
+        }
+      });
+      return;
+    }
+
+    startTransition(async () => {
+      setOptimisticStatus(TaskStatus.Completed);
+      const result = await completeTaskWithEnergyAction(task.id, choice);
+
+      if (result.ok) {
+        const msg = result.data.energyNotTracked
+          ? 'Task completed (no check-in today; energy not tracked)'
+          : 'Task completed';
+        toast.info(msg, { description: task.title });
+      } else {
+        console.error('Failed to complete task with energy:', result.error);
+        toast.error('Failed to complete task', {
+          description: result.error?.message ?? 'Could not complete task.',
+        });
+      }
     });
   };
 
   return (
-    <div
-      id={`task-card-${task.id}`}
-      className='rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950'
-    >
-      <div className='flex items-start gap-3'>
-        <Checkbox
-          checked={isCompleted}
-          onCheckedChange={handleCheckboxChange}
-          disabled={isPending}
-          className='mt-1'
-        />
-        <div className='flex-1'>
-          <h3
-            className={`font-semibold text-zinc-900 dark:text-zinc-50 ${isCompleted ? 'line-through opacity-50' : ''}`}
-          >
-            {task.title}
-          </h3>
-          {task.description && (
-            <p
-              className={`mt-1 text-sm text-zinc-600 dark:text-zinc-400 ${isCompleted ? 'line-through opacity-50' : ''}`}
+    <>
+      <PostTaskEnergyDialog
+        open={openEnergyDialog}
+        onOpenChange={setOpenEnergyDialog}
+        onSelect={handleEnergyChoice}
+        taskTitle={task.title}
+        isPending={isPending}
+      />
+      <div
+        id={`task-card-${task.id}`}
+        className='rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950'
+      >
+        <div className='flex items-start gap-3'>
+          <Checkbox
+            checked={isCompleted}
+            onCheckedChange={handleCheckboxChange}
+            disabled={isPending}
+            className='mt-1'
+          />
+          <div className='flex-1'>
+            <h3
+              className={`font-semibold text-zinc-900 dark:text-zinc-50 ${isCompleted ? 'line-through opacity-50' : ''}`}
             >
-              {task.description}
-            </p>
-          )}
-          <div className='mt-3 flex flex-wrap items-center gap-2'>
-            <IntensityBadge intensity={task.intensity} />
-            <StatusBadge status={optimisticStatus} />
-            {task.dueAt && (
-              <span className='text-xs text-zinc-500 dark:text-zinc-400'>
-                Due: {new Date(task.dueAt).toLocaleDateString()}
-              </span>
+              {task.title}
+            </h3>
+            {task.description && (
+              <p
+                className={`mt-1 text-sm text-zinc-600 dark:text-zinc-400 ${isCompleted ? 'line-through opacity-50' : ''}`}
+              >
+                {task.description}
+              </p>
+            )}
+            <div className='mt-3 flex flex-wrap items-center gap-2'>
+              <IntensityBadge intensity={task.intensity} />
+              <StatusBadge status={optimisticStatus} />
+              {task.dueAt && (
+                <span className='text-xs text-zinc-500 dark:text-zinc-400'>
+                  Due: {new Date(task.dueAt).toLocaleDateString()}
+                </span>
+              )}
+            </div>
+            {task.tags.length > 0 && (
+              <div className='mt-2 flex flex-wrap gap-1'>
+                {task.tags.map((tag: string) => (
+                  <span
+                    key={tag}
+                    className='inline-flex items-center rounded-md bg-zinc-100 px-2 py-1 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
             )}
           </div>
-          {task.tags.length > 0 && (
-            <div className='mt-2 flex flex-wrap gap-1'>
-              {task.tags.map((tag: string) => (
-                <span
-                  key={tag}
-                  className='inline-flex items-center rounded-md bg-zinc-100 px-2 py-1 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
         </div>
       </div>
-    </div>
+    </>
   );
 }

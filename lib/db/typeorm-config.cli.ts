@@ -5,6 +5,7 @@ import { Task } from './entities/Task';
 import { UserProfile } from './entities/UserProfile';
 import { DailyCheckIn } from './entities/DailyCheckIn';
 import { DailyPlan } from './entities/DailyPlan';
+import { EnergyDeductionEvent } from './entities/EnergyDeductionEvent';
 
 function getTypeOrmConfig(): DataSourceOptions {
   const dbEnv = getDbEnv();
@@ -20,7 +21,13 @@ function getTypeOrmConfig(): DataSourceOptions {
       rejectUnauthorized: false, // Required for Neon hosted Postgres
     },
     // Explicitly list entities - required for Next.js/Vercel compatibility
-    entities: [Task, UserProfile, DailyCheckIn, DailyPlan],
+    entities: [
+      Task,
+      UserProfile,
+      DailyCheckIn,
+      DailyPlan,
+      EnergyDeductionEvent,
+    ],
     // Migrations for CLI usage only
     migrations: [__dirname + '/migrations/*.ts'],
     migrationsTableName: 'typeorm_migrations',
