@@ -28,6 +28,8 @@ export async function getOrCreateDefaultUserProfile(): Promise<
         workingStartMinutes: 540, // 9:00 AM
         workingEndMinutes: 1080, // 6:00 PM
         primaryFocusPeriod: PrimaryFocusPeriod.Morning,
+        timeZone: 'UTC', // Default timezone
+        morningPokeTimeMinutes: 480, // 08:00
       });
 
       await profileRepo.save(profile);

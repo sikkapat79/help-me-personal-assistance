@@ -1,15 +1,20 @@
 import { requireActiveProfileId } from '@/lib/features/profile/activeProfile';
+import { getUserProfileById } from '@/lib/features/profile/use-cases/getUserProfileById';
 import { getDailyCheckInForDate } from '@/lib/features/checkin/use-cases/getDailyCheckInForDate';
 import { MorningCheckInForm } from './_components/MorningCheckInForm';
 import { DailyCheckInData } from '@/lib/features/checkin/types';
+import { getYyyyMmDdInTimeZone } from '@/lib/time';
 
 export const dynamic = 'force-dynamic';
 
 export default async function CheckInPage() {
   const profileId = await requireActiveProfileId();
+  const profileResult = await getUserProfileById(profileId);
 
-  // Get today's date in YYYY-MM-DD format (server timezone)
-  const today = new Date().toISOString().split('T')[0];
+  // Get today's date in the user's timezone
+  const profile = profileResult.ok ? profileResult.data : null;
+  const timeZone = profile?.timeZone ?? 'UTC';
+  const today = getYyyyMmDdInTimeZone(timeZone);
 
   // Fetch existing check-in for today (if any)
   const checkInResult = await getDailyCheckInForDate(profileId, today);
@@ -38,7 +43,10 @@ export default async function CheckInPage() {
         </p>
       </div>
 
-      <MorningCheckInForm existingCheckIn={existingCheckIn} />
+      <MorningCheckInForm
+        existingCheckIn={existingCheckIn}
+        checkInDate={today}
+      />
     </div>
   );
 }

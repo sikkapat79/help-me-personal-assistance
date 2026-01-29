@@ -4,6 +4,10 @@ import { requireActiveProfileId } from '@/lib/features/profile/activeProfile';
 import { getUserProfileById } from '@/lib/features/profile/use-cases/getUserProfileById';
 import { getDailyCheckInForDate } from '@/lib/features/checkin/use-cases/getDailyCheckInForDate';
 import { DailyCheckInData } from '@/lib/features/checkin/types';
+import {
+  getYyyyMmDdInTimeZone,
+  getMinutesSinceMidnightInTimeZone,
+} from '@/lib/time';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,9 +20,17 @@ export default async function HomePage() {
     ? profileResult.data.displayName
     : 'User';
 
-  // Get today's check-in
-  const today = new Date().toISOString().split('T')[0];
+  // Get today's date in the user's timezone
+  const profile = profileResult.ok ? profileResult.data : null;
+  const timeZone = profile?.timeZone ?? 'UTC';
+  const today = getYyyyMmDdInTimeZone(timeZone);
   const checkInResult = await getDailyCheckInForDate(profileId, today);
+
+  // Check if it's past the poke time (only show reminder after 08:00 local time)
+  const isPastPokeTime =
+    profile &&
+    getMinutesSinceMidnightInTimeZone(timeZone) >=
+      profile.morningPokeTimeMinutes;
 
   let todayCheckIn: DailyCheckInData | null = null;
   if (checkInResult.ok && checkInResult.data) {
@@ -42,7 +54,10 @@ export default async function HomePage() {
         <p className='text-muted-foreground mt-1'>Your tasks for today</p>
       </div>
 
-      <CheckInStatusCard checkIn={todayCheckIn} />
+      <CheckInStatusCard
+        checkIn={todayCheckIn}
+        shouldShowReminder={isPastPokeTime ?? false}
+      />
 
       <TaskList />
     </div>

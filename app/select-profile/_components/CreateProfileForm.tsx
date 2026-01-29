@@ -56,6 +56,12 @@ export function CreateProfileForm() {
       formData.set('workingEndMinutes', String(endHours * 60 + endMinutes));
     }
 
+    // Capture timezone from browser (silent, auto-detected)
+    const detectedTimeZone =
+      Intl.DateTimeFormat().resolvedOptions().timeZone ?? 'UTC';
+    formData.set('timeZone', detectedTimeZone);
+    formData.set('morningPokeTimeMinutes', '480'); // Default 08:00
+
     startTransition(() => {
       formAction(formData);
     });

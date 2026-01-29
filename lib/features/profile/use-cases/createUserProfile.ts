@@ -17,6 +17,8 @@ export async function createUserProfile(
       workingStartMinutes: input.workingStartMinutes,
       workingEndMinutes: input.workingEndMinutes,
       primaryFocusPeriod: input.primaryFocusPeriod,
+      timeZone: input.timeZone,
+      morningPokeTimeMinutes: input.morningPokeTimeMinutes,
     });
 
     await profileRepo.save(profile);

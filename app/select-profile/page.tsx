@@ -16,6 +16,8 @@ export default async function SelectProfilePage() {
         workingStartMinutes: profile.workingStartMinutes,
         workingEndMinutes: profile.workingEndMinutes,
         primaryFocusPeriod: profile.primaryFocusPeriod,
+        timeZone: profile.timeZone,
+        morningPokeTimeMinutes: profile.morningPokeTimeMinutes,
         createdAt: profile.createdAt,
         updatedAt: profile.updatedAt,
       }))

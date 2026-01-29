@@ -4,11 +4,19 @@ import { DailyCheckInData } from '@/lib/features/checkin/types';
 
 interface CheckInStatusCardProps {
   readonly checkIn: DailyCheckInData | null;
+  readonly shouldShowReminder?: boolean;
 }
 
-export function CheckInStatusCard({ checkIn }: CheckInStatusCardProps) {
+export function CheckInStatusCard({
+  checkIn,
+  shouldShowReminder = false,
+}: CheckInStatusCardProps) {
   if (!checkIn) {
-    // No check-in for today
+    // No check-in for today - only show reminder if it's past poke time
+    if (!shouldShowReminder) {
+      return null;
+    }
+
     return (
       <div
         id='checkin-status-card'
@@ -20,7 +28,8 @@ export function CheckInStatusCard({ checkIn }: CheckInStatusCardProps) {
               Morning Check-in
             </h3>
             <p className='mt-1 text-sm text-amber-700 dark:text-amber-300'>
-              You haven&apos;t checked in today yet. Set your energy plan to get started.
+              You haven&apos;t checked in today yet. Set your energy plan to get
+              started.
             </p>
           </div>
           <Link href='/checkin'>
@@ -46,13 +55,15 @@ export function CheckInStatusCard({ checkIn }: CheckInStatusCardProps) {
           </h3>
           <div className='mt-2 flex items-center gap-4 text-sm text-green-700 dark:text-green-300'>
             <div>
-              <span className='font-medium'>Quality:</span> {checkIn.restQuality1to10}/10
+              <span className='font-medium'>Quality:</span>{' '}
+              {checkIn.restQuality1to10}/10
             </div>
             <div>
               <span className='font-medium'>Mood:</span> {checkIn.morningMood}
             </div>
             <div className='rounded-md bg-green-100 px-2 py-1 dark:bg-green-900'>
-              <span className='font-medium'>Energy:</span> {checkIn.energyBudget}
+              <span className='font-medium'>Energy:</span>{' '}
+              {checkIn.energyBudget}
             </div>
           </div>
         </div>

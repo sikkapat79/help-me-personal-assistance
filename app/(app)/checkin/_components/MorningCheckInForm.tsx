@@ -19,10 +19,12 @@ import { useToast } from '@/lib/hooks/use-toast';
 
 interface MorningCheckInFormProps {
   readonly existingCheckIn: DailyCheckInData | null;
+  readonly checkInDate: string; // YYYY-MM-DD format, computed server-side in user's timezone
 }
 
 export function MorningCheckInForm({
   existingCheckIn,
+  checkInDate,
 }: MorningCheckInFormProps) {
   const [isPending, startTransition] = useTransition();
   const [state, formAction] = useActionState(submitMorningCheckInAction, null);
@@ -68,9 +70,8 @@ export function MorningCheckInForm({
     const formData = new FormData(event.currentTarget);
     lastSuccessRef.current = false;
 
-    // Add today's date in YYYY-MM-DD format (client timezone)
-    const today = new Date().toISOString().split('T')[0];
-    formData.set('checkInDate', today);
+    // Use server-computed check-in date (in user's timezone)
+    formData.set('checkInDate', checkInDate);
 
     startTransition(() => {
       formAction(formData);
