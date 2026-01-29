@@ -1,4 +1,5 @@
 import { TaskList } from '@/components/TaskList';
+import { DonePanel } from '@/components/DonePanel';
 import { CheckInStatusCard } from '@/components/CheckInStatusCard';
 import { DailyPlanCard } from '@/components/DailyPlanCard';
 import { requireActiveProfileId } from '@/lib/features/profile/activeProfile';
@@ -63,6 +64,8 @@ export default async function HomePage() {
       <DailyPlanCard />
 
       <TaskList />
+
+      <DonePanel />
     </div>
   );
 }
