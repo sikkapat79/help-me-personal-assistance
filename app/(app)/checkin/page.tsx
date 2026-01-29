@@ -35,7 +35,7 @@ export default async function CheckInPage() {
   }
 
   return (
-    <div id='checkin-page' className='space-y-6'>
+    <div id='checkin-page' className='space-y-8'>
       <div>
         <h1 className='text-3xl font-bold text-foreground'>Morning Check-in</h1>
         <p className='mt-2 text-sm text-muted-foreground'>

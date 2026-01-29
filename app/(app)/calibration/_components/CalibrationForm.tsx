@@ -343,7 +343,7 @@ export function CalibrationForm({ profile }: CalibrationFormProps) {
             <Button
               id='save-profile-button'
               type='submit'
-              disabled={isPending}
+              loading={isPending}
               className='px-6'
             >
               {isPending ? 'Saving...' : 'Save Changes'}

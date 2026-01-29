@@ -206,7 +206,7 @@ export function CreateProfileForm() {
         <Button
           id='create-profile-button'
           type='submit'
-          disabled={isPending}
+          loading={isPending}
           className='w-full'
         >
           {isPending ? 'Creating Profile...' : 'Create Profile & Continue'}

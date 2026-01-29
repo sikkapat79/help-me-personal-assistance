@@ -35,7 +35,7 @@ export async function DailyPlanCard() {
     return (
       <div
         id='daily-plan-card'
-        className='rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950'
+        className='rounded-lg border border-amber-200 bg-amber-50 p-4 transition-shadow hover:shadow-md dark:border-amber-900 dark:bg-amber-950'
       >
         <div className='flex items-center justify-between gap-4'>
           <div>
@@ -64,7 +64,7 @@ export async function DailyPlanCard() {
     return (
       <div
         id='daily-plan-card'
-        className='rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900'
+        className='rounded-lg border border-slate-200 bg-slate-50 p-4 transition-shadow hover:shadow-md dark:border-slate-800 dark:bg-slate-900'
       >
         <div className='flex items-center justify-between gap-4'>
           <div>
@@ -91,7 +91,7 @@ export async function DailyPlanCard() {
   return (
     <div
       id='daily-plan-card'
-      className='rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950'
+      className='rounded-lg border border-blue-200 bg-blue-50 p-4 transition-shadow hover:shadow-md dark:border-blue-900 dark:bg-blue-950'
     >
       <div className='flex flex-col gap-3'>
         <div className='flex items-start justify-between gap-4'>

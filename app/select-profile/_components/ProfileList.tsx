@@ -63,6 +63,7 @@ export function ProfileList({ profiles }: ProfileListProps) {
             id={`select-profile-${profile.id}-button`}
             onClick={() => handleSelect(profile.id)}
             disabled={isPending}
+            loading={isPending && selectedId === profile.id}
             className='mt-4 w-full'
             variant={selectedId === profile.id ? 'default' : 'outline'}
           >

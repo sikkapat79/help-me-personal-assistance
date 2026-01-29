@@ -1,5 +1,6 @@
 'use client';
 
+import { Loader2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -70,6 +71,12 @@ export function PostTaskEnergyDialog({
             Skip (complete without tracking energy)
           </Button>
         </div>
+        {isPending && (
+          <div className='flex items-center justify-center gap-2 pt-2 text-sm text-muted-foreground'>
+            <Loader2 className='h-4 w-4 animate-spin' aria-hidden />
+            <span>Saving...</span>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

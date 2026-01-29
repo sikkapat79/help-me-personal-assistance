@@ -190,7 +190,7 @@ export function MorningCheckInForm({
           <Button
             id='save-checkin-button'
             type='submit'
-            disabled={isPending}
+            loading={isPending}
             className='px-6'
           >
             {isPending

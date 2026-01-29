@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { sendMessage } from '@/app/_actions/bedrock-chat';
+import { Button } from '@/components/ui/button';
 
 interface Message {
   id: string;
@@ -106,13 +107,14 @@ export function BedrockChatClient() {
           placeholder='Type a message...'
           className='flex-1 rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400 text-slate-800'
         />
-        <button
+        <Button
           type='submit'
-          disabled={isLoading || !input.trim()}
-          className='rounded-md bg-blue-600 px-6 py-2 font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:text-gray-500'
+          disabled={!input.trim()}
+          loading={isLoading}
+          className='bg-blue-600 px-6 hover:bg-blue-700 focus:ring-blue-500 disabled:bg-gray-300 disabled:text-gray-500'
         >
           {isLoading ? 'Sending...' : 'Send'}
-        </button>
+        </Button>
       </form>
     </div>
   );

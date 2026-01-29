@@ -48,7 +48,7 @@ export default async function HomePage() {
   }
 
   return (
-    <div id='home-page' className='space-y-6'>
+    <div id='home-page' className='space-y-8'>
       <div>
         <h1 className='text-3xl font-bold text-foreground'>
           Welcome back, {profileName}.

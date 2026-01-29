@@ -14,7 +14,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -103,9 +102,16 @@ export function TaskCreateModal() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button id='add-task-button'>Add Task</Button>
-      </DialogTrigger>
+      <Button
+        id='add-task-button'
+        type='button'
+        onClick={() => setOpen(true)}
+        aria-haspopup='dialog'
+        aria-expanded={open}
+        aria-controls='task-create-modal'
+      >
+        Add Task
+      </Button>
       <DialogContent id='task-create-modal' className='max-w-2xl'>
         <DialogHeader>
           <DialogTitle>New Objective</DialogTitle>
@@ -210,7 +216,7 @@ export function TaskCreateModal() {
             >
               Cancel
             </Button>
-            <Button type='submit' disabled={isPending} id='submit-task-button'>
+            <Button type='submit' loading={isPending} id='submit-task-button'>
               {isPending ? 'Creating...' : 'Schedule Task'}
             </Button>
           </div>

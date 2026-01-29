@@ -17,7 +17,7 @@ export function LogoutButton() {
     <Button
       id='logout-button'
       onClick={handleLogout}
-      disabled={isPending}
+      loading={isPending}
       variant='outline'
       size='sm'
     >
