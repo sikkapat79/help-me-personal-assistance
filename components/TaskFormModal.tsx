@@ -40,14 +40,17 @@ const initialState: TaskFormState = {
   },
 };
 
-function getDateInputDefaultValue(value: unknown): string {
+/** Format for datetime-local input (YYYY-MM-DDTHH:mm). Returns '' if no value. */
+function getDateTimeLocalDefaultValue(value: unknown): string {
   if (value instanceof Date) {
-    return value.toISOString().slice(0, 10);
+    const d = value;
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
   if (typeof value === 'string' && value.length > 0) {
     return value;
   }
-  return new Date().toISOString().slice(0, 10);
+  return '';
 }
 
 function FieldError({
@@ -253,12 +256,12 @@ export function TaskFormModal({
             </div>
 
             <div className='space-y-2'>
-              <Label htmlFor='task-dueAt-input'>Due Date</Label>
+              <Label htmlFor='task-dueAt-input'>Due date & time</Label>
               <Input
                 id='task-dueAt-input'
                 name='dueAt'
-                type='date'
-                defaultValue={getDateInputDefaultValue(defaultDueAt)}
+                type='datetime-local'
+                defaultValue={getDateTimeLocalDefaultValue(defaultDueAt)}
               />
               <FieldError message={state.fieldErrors?.dueAt} />
             </div>

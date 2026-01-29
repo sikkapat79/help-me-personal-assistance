@@ -13,6 +13,7 @@ export async function updateTask(
 
   if (result.ok) {
     revalidatePath('/');
+    revalidatePath('/tasks');
   }
 
   return result;
