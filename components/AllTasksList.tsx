@@ -1,6 +1,12 @@
-import { ClipboardList } from 'lucide-react';
+'use client';
+
+import { useState, useTransition } from 'react';
+import { ClipboardList, Loader2 } from 'lucide-react';
 import { TaskCard } from './TaskCard';
 import type { TaskData } from '@/lib/features/tasks/types';
+import type { ListTasksCursor } from '@/lib/features/tasks/use-cases/listTasksCursor';
+import { loadMoreTasksAction } from '@/app/_actions/load-more-tasks';
+import { Button } from '@/components/ui/button';
 
 function EmptyState() {
   return (
@@ -25,17 +31,58 @@ function EmptyState() {
 }
 
 export function AllTasksList({
-  tasks,
-}: Readonly<{ tasks: TaskData[] }>) {
+  initialTasks,
+  nextCursor,
+}: Readonly<{
+  initialTasks: TaskData[];
+  nextCursor: ListTasksCursor | null;
+}>) {
+  const [tasks, setTasks] = useState<TaskData[]>(initialTasks);
+  const [cursor, setCursor] = useState<ListTasksCursor | null>(nextCursor);
+  const [isLoadingMore, startTransition] = useTransition();
+
+  const handleLoadMore = () => {
+    if (!cursor || isLoadingMore) return;
+    startTransition(async () => {
+      const result = await loadMoreTasksAction(cursor);
+      if (result.ok) {
+        setTasks((prev) => [...prev, ...result.tasks]);
+        setCursor(result.nextCursor);
+      }
+    });
+  };
+
   if (tasks.length === 0) {
     return <EmptyState />;
   }
 
   return (
-    <div id='all-tasks-list' className='space-y-3'>
-      {tasks.map((task) => (
-        <TaskCard key={task.id} task={task} />
-      ))}
+    <div id='all-tasks-list' className='space-y-6'>
+      <div className='space-y-3'>
+        {tasks.map((task) => (
+          <TaskCard key={task.id} task={task} />
+        ))}
+      </div>
+      {cursor && (
+        <div className='flex justify-center'>
+          <Button
+            type='button'
+            variant='outline'
+            onClick={handleLoadMore}
+            disabled={isLoadingMore}
+            className='min-w-[10rem]'
+          >
+            {isLoadingMore ? (
+              <>
+                <Loader2 className='h-4 w-4 animate-spin' aria-hidden />
+                Loading...
+              </>
+            ) : (
+              <>Load more</>
+            )}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

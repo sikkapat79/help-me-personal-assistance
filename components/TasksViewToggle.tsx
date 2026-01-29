@@ -20,7 +20,10 @@ export function TasksViewToggle({
       className='flex rounded-lg border border-zinc-200 bg-zinc-100 p-1 dark:border-zinc-800 dark:bg-zinc-900'
     >
       {viewLinks.map(({ view, label }) => {
-        const href = `/tasks?view=${view}`;
+        const href =
+          view === 'calendar'
+            ? '/tasks?view=calendar&calendarView=week'
+            : '/tasks?view=list';
         const active = currentView === view;
         return (
           <Link

@@ -66,3 +66,32 @@ export function isDueOnOrBefore(
   const dueYyyyMmDd = dayjs(dueAt).tz(tz).format('YYYY-MM-DD');
   return dueYyyyMmDd <= todayYyyyMmDd;
 }
+
+/**
+ * Week start/end in the given timezone for a date within that week.
+ * Uses Sunday as start of week (dayjs default).
+ */
+export function getWeekStartEndInTimeZone(
+  timeZone: string,
+  yyyyMmDd: string,
+): { start: Date; end: Date } {
+  const tz = safeTimeZoneOrUtc(timeZone);
+  const d = dayjs.tz(yyyyMmDd, tz);
+  const start = d.startOf('week').toDate();
+  const end = d.endOf('week').toDate();
+  return { start, end };
+}
+
+/**
+ * Month start/end in the given timezone for a date within that month.
+ */
+export function getMonthStartEndInTimeZone(
+  timeZone: string,
+  yyyyMmDd: string,
+): { start: Date; end: Date } {
+  const tz = safeTimeZoneOrUtc(timeZone);
+  const d = dayjs.tz(yyyyMmDd, tz);
+  const start = d.startOf('month').toDate();
+  const end = d.endOf('month').toDate();
+  return { start, end };
+}
