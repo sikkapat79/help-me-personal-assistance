@@ -1,15 +1,12 @@
 import { requireActiveProfileId } from '@/lib/features/profile/activeProfile';
 import { getUserProfileById } from '@/lib/features/profile/use-cases/getUserProfileById';
+import { getDailyPlanForDate } from '@/lib/features/plan/use-cases/getDailyPlanForDate';
 import { listTasksCursor } from '@/lib/features/tasks/use-cases/listTasksCursor';
 import { listTasksInDateRange } from '@/lib/features/tasks/use-cases/listTasksInDateRange';
 import { listTasksUndated } from '@/lib/features/tasks/use-cases/listTasksUndated';
 import { taskToTaskData } from '@/lib/features/tasks/mappers';
 import type { TaskData } from '@/lib/features/tasks/types';
-import {
-  getYyyyMmDdInTimeZone,
-  getWeekStartEndInTimeZone,
-  getMonthStartEndInTimeZone,
-} from '@/lib/time';
+import { getYyyyMmDdInTimeZone, getWeekStartEndInTimeZone } from '@/lib/time';
 import type { ListTasksCursor } from '@/lib/features/tasks/use-cases/listTasksCursor';
 import { AllTasksList } from '@/components/AllTasksList';
 import { TasksViewToggle, type TasksView } from '@/components/TasksViewToggle';
@@ -18,15 +15,12 @@ import { NoDateSection } from '@/components/NoDateSection';
 
 export const dynamic = 'force-dynamic';
 
-export type CalendarViewMode = 'week' | 'month';
-
 export default async function TasksPage({
   searchParams,
 }: Readonly<{
   searchParams: Promise<{
     view?: string;
     calendarDate?: string;
-    calendarView?: string;
   }>;
 }>) {
   const profileId = await requireActiveProfileId();
@@ -38,30 +32,33 @@ export default async function TasksPage({
 
   const params = await searchParams;
   const view: TasksView = params?.view === 'calendar' ? 'calendar' : 'list';
-  const calendarView: CalendarViewMode =
-    params?.calendarView === 'month' ? 'month' : 'week';
   const calendarDate = params?.calendarDate ?? todayYyyyMmDd;
 
   let initialTasks: TaskData[] = [];
   let nextCursor: ListTasksCursor | null = null;
   let tasksWithDue: TaskData[] = [];
   let tasksNoDate: TaskData[] = [];
+  let todayRankedIds: string[] | undefined;
 
   if (view === 'list') {
     const result = await listTasksCursor(profileId, null);
     initialTasks = result.tasks.map(taskToTaskData);
     nextCursor = result.nextCursor;
   } else {
-    const { start, end } =
-      calendarView === 'month'
-        ? getMonthStartEndInTimeZone(timeZone, calendarDate)
-        : getWeekStartEndInTimeZone(timeZone, calendarDate);
-    const [rangeTasks, undatedTasks] = await Promise.all([
+    const { start, end } = getWeekStartEndInTimeZone(timeZone, calendarDate);
+    const [rangeTasks, undatedTasks, planResult] = await Promise.all([
       listTasksInDateRange(profileId, start, end),
       listTasksUndated(profileId),
+      getDailyPlanForDate(profileId, todayYyyyMmDd),
     ]);
     tasksWithDue = rangeTasks.map(taskToTaskData);
     tasksNoDate = undatedTasks.map(taskToTaskData);
+    todayRankedIds =
+      planResult?.ok && planResult.data
+        ? (planResult.data.rankedTaskIds ?? []).filter((id) =>
+            tasksWithDue.some((t) => t.id === id),
+          )
+        : undefined;
   }
 
   return (
@@ -82,7 +79,9 @@ export default async function TasksPage({
           <TasksCalendarView
             tasks={tasksWithDue}
             initialDate={calendarDate}
-            initialView={calendarView}
+            timeZone={timeZone}
+            todayYyyyMmDd={todayYyyyMmDd}
+            todayRankedIds={todayRankedIds}
           />
           <NoDateSection tasks={tasksNoDate} />
         </div>

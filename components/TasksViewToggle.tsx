@@ -21,9 +21,7 @@ export function TasksViewToggle({
     >
       {viewLinks.map(({ view, label }) => {
         const href =
-          view === 'calendar'
-            ? '/tasks?view=calendar&calendarView=week'
-            : '/tasks?view=list';
+          view === 'calendar' ? '/tasks?view=calendar' : '/tasks?view=list';
         const active = currentView === view;
         return (
           <Link

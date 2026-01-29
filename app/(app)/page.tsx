@@ -1,4 +1,5 @@
 import { TaskList } from '@/components/TaskList';
+import { TodayTasksSection } from '@/components/TodayTasksSection';
 import { DonePanel } from '@/components/DonePanel';
 import { CheckInStatusCard } from '@/components/CheckInStatusCard';
 import { DailyPlanCard } from '@/components/DailyPlanCard';
@@ -64,7 +65,9 @@ export default async function HomePage() {
 
       <DailyPlanCard />
 
-      <TaskList />
+      <TodayTasksSection hasCheckInToday={!!todayCheckIn}>
+        <TaskList />
+      </TodayTasksSection>
 
       <DonePanel />
     </div>
