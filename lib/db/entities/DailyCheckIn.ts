@@ -33,6 +33,9 @@ export class DailyCheckIn {
   @Column({ type: 'text', name: 'sleep_notes', nullable: true })
   sleepNotes!: string | null;
 
+  @Column({ type: 'text', name: 'evening_summary', nullable: true })
+  eveningSummary!: string | null;
+
   @Column({ type: 'timestamptz', name: 'created_at' })
   createdAt!: Date;
 
@@ -84,6 +87,11 @@ export class DailyCheckIn {
     }
 
     // Domain model controls its own timestamp
+    this.updatedAt = new Date();
+  }
+
+  setEveningSummary(summary: string | null): void {
+    this.eveningSummary = summary;
     this.updatedAt = new Date();
   }
 }

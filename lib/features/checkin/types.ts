@@ -10,6 +10,7 @@ export interface DailyCheckInData {
   morningMood: MorningMood;
   energyBudget: number;
   sleepNotes: string | null;
+  eveningSummary: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
