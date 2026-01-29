@@ -3,8 +3,8 @@ import { requireActiveProfileId } from '@/lib/features/profile/activeProfile';
 import { getUserProfileById } from '@/lib/features/profile/use-cases/getUserProfileById';
 import { getYyyyMmDdInTimeZone } from '@/lib/time';
 import { listDailyReportRows } from '@/lib/features/checkin/use-cases/listDailyReportRows';
-import { getSuccessCorrelationInsight } from '@/lib/features/checkin/use-cases/getSuccessCorrelationInsight';
 import type { DailyReportRow } from '@/lib/features/checkin/use-cases/listDailyReportRows';
+import { SuccessCorrelationCard } from '@/app/(app)/trends/_components/SuccessCorrelationCard';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,33 +22,29 @@ export default async function TrendsPage() {
     .subtract(TRENDS_DAYS - 1, 'day')
     .format('YYYY-MM-DD');
 
-  const [rows, insightResult] = await Promise.all([
-    listDailyReportRows(profileId, startDate, endDate),
-    getSuccessCorrelationInsight(profileId, startDate, endDate),
-  ]);
-
-  const insight =
-    insightResult.ok && insightResult.data.trim() ? insightResult.data : null;
+  const rows = await listDailyReportRows(profileId, startDate, endDate);
   const totalDeepFocus = rows.reduce((s, r) => s + r.deepFocusCount, 0);
   const avgDeepFocusPerDay = rows.length > 0 ? totalDeepFocus / rows.length : 0;
 
   return (
     <div id='trends-page' className='space-y-8'>
-      <div>
+      <div className='view-transition-title'>
         <h1 className='text-3xl font-bold text-foreground'>BioTrends</h1>
         <p className='mt-1 text-muted-foreground'>
           Rest vs output and health log history
         </p>
       </div>
 
-      <div className='grid gap-6 sm:grid-cols-2'>
-        <HealthVsOutputCard rows={rows} />
-        <SuccessCorrelationCard insight={insight} />
+      <div className='view-transition-page space-y-8'>
+        <div className='grid gap-6 sm:grid-cols-2'>
+          <HealthVsOutputCard rows={rows} />
+          <SuccessCorrelationCard startDate={startDate} endDate={endDate} rows={rows} />
+        </div>
+
+        <AvgDeepFocusCard avgPerDay={avgDeepFocusPerDay} />
+
+        <HealthLogHistoryCard rows={rows} />
       </div>
-
-      <AvgDeepFocusCard avgPerDay={avgDeepFocusPerDay} />
-
-      <HealthLogHistoryCard rows={rows} />
     </div>
   );
 }
@@ -124,28 +120,6 @@ function HealthVsOutputCard({ rows }: { rows: DailyReportRow[] }) {
           <span>REST (grey)</span>
         </div>
       )}
-    </section>
-  );
-}
-
-function SuccessCorrelationCard({ insight }: { insight: string | null }) {
-  return (
-    <section
-      id='success-correlation'
-      className='rounded-lg border border-border bg-primary/5 p-4'
-    >
-      <h2 className='text-sm font-semibold text-foreground'>
-        SUCCESS CORRELATION
-      </h2>
-      <div className='mt-2'>
-        {insight ? (
-          <p className='text-sm text-muted-foreground'>{insight}</p>
-        ) : (
-          <p className='text-sm text-muted-foreground'>
-            Pending… Log a few days of check-ins and tasks to see insights.
-          </p>
-        )}
-      </div>
     </section>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { TransitionLink } from '@/components/TransitionLink';
 import { cn } from '@/lib/utils';
 
 export type TasksView = 'list' | 'calendar';
@@ -24,7 +24,7 @@ export function TasksViewToggle({
           view === 'calendar' ? '/tasks?view=calendar' : '/tasks?view=list';
         const active = currentView === view;
         return (
-          <Link
+          <TransitionLink
             key={view}
             href={href}
             role='tab'
@@ -38,7 +38,7 @@ export function TasksViewToggle({
             )}
           >
             {label}
-          </Link>
+          </TransitionLink>
         );
       })}
     </div>

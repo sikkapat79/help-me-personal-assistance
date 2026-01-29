@@ -121,4 +121,73 @@
   body {
     @apply bg-background text-foreground font-sans;
   }
+  /* Title: same layout id across pages so it stays in place */
+  .view-transition-title {
+    view-transition-name: page-title;
+  }
+  /* Content below title: only this part slides */
+  .view-transition-page {
+    view-transition-name: main-content;
+  }
+}
+
+/* View Transitions: title updates in place; content slides by direction */
+@supports (view-transition-name: none) {
+  ::view-transition-old(page-title),
+  ::view-transition-new(page-title) {
+    animation-duration: 0.12s;
+  }
+  /* Forward: new from right, old exits left */
+  [data-transition-direction='forward'] ::view-transition-old(main-content) {
+    animation: view-transition-slide-out-left 0.2s ease-out both;
+  }
+  [data-transition-direction='forward'] ::view-transition-new(main-content) {
+    animation: view-transition-slide-in-from-right 0.22s ease-out both;
+  }
+  /* Back: new from left, old exits right */
+  [data-transition-direction='back'] ::view-transition-old(main-content) {
+    animation: view-transition-slide-out-right 0.2s ease-out both;
+  }
+  [data-transition-direction='back'] ::view-transition-new(main-content) {
+    animation: view-transition-slide-in-from-left 0.22s ease-out both;
+  }
+  /* Default (no direction set, e.g. first load): forward */
+  :root:not([data-transition-direction]) ::view-transition-old(main-content) {
+    animation: view-transition-slide-out-left 0.2s ease-out both;
+  }
+  :root:not([data-transition-direction]) ::view-transition-new(main-content) {
+    animation: view-transition-slide-in-from-right 0.22s ease-out both;
+  }
+}
+@keyframes view-transition-slide-out-left {
+  to {
+    opacity: 0;
+    transform: translateX(-20%);
+  }
+}
+@keyframes view-transition-slide-in-from-right {
+  from {
+    opacity: 0.7;
+    transform: translateX(20%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes view-transition-slide-out-right {
+  to {
+    opacity: 0;
+    transform: translateX(20%);
+  }
+}
+@keyframes view-transition-slide-in-from-left {
+  from {
+    opacity: 0.7;
+    transform: translateX(-20%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }

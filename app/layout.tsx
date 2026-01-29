@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { ViewTransitions } from 'next-view-transitions';
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
@@ -20,11 +21,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en'>
-      <body className={`${plusJakartaSans.variable} font-sans antialiased`}>
-        {children}
-        <Toaster />
-      </body>
-    </html>
+    <ViewTransitions>
+      <html lang='en'>
+        <body className={`${plusJakartaSans.variable} font-sans antialiased`}>
+          {children}
+          <Toaster />
+        </body>
+      </html>
+    </ViewTransitions>
   );
 }

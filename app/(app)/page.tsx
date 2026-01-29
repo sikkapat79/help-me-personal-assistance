@@ -69,31 +69,33 @@ export default async function HomePage() {
 
   return (
     <div id='home-page' className='space-y-8'>
-      <div>
+      <div className='view-transition-title'>
         <h1 className='text-3xl font-bold text-foreground'>
           Welcome back, {profileName}.
         </h1>
         <p className='text-muted-foreground mt-1'>Your tasks for today</p>
       </div>
 
-      <CheckInStatusCard
-        checkIn={todayCheckIn}
-        shouldShowReminder={isPastPokeTime ?? false}
-      />
+      <div className='view-transition-page space-y-8'>
+        <CheckInStatusCard
+          checkIn={todayCheckIn}
+          shouldShowReminder={isPastPokeTime ?? false}
+        />
 
-      <YesterdaySummaryCard
-        yesterdaySummary={yesterdaySummary}
-        yesterdayYyyyMmDd={yesterday}
-        showFallbackButton={showFallbackButton}
-      />
+        <YesterdaySummaryCard
+          yesterdaySummary={yesterdaySummary}
+          yesterdayYyyyMmDd={yesterday}
+          showFallbackButton={showFallbackButton}
+        />
 
-      <DailyPlanCard />
+        <DailyPlanCard />
 
-      <TodayTasksSection hasCheckInToday={!!todayCheckIn}>
-        <TaskList />
-      </TodayTasksSection>
+        <TodayTasksSection hasCheckInToday={!!todayCheckIn}>
+          <TaskList />
+        </TodayTasksSection>
 
-      <DonePanel />
+        <DonePanel />
+      </div>
     </div>
   );
 }

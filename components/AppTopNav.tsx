@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { TransitionLink } from '@/components/TransitionLink';
 import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -51,18 +51,18 @@ export function AppTopNav({
         <div className='flex h-16 items-center justify-between'>
           {/* Brand + Desktop Nav */}
           <div className='flex items-center gap-6'>
-            <Link
+            <TransitionLink
               href='/'
               id='nav-brand'
               className='text-xl font-bold text-primary hover:opacity-80 transition-opacity'
             >
               HelpMe
-            </Link>
+            </TransitionLink>
 
             {/* Desktop Navigation Links */}
             <div className='hidden sm:flex sm:gap-4'>
               {navLinks.map((link) => (
-                <Link
+                <TransitionLink
                   key={link.href}
                   href={link.href}
                   id={`nav-link-${link.href.replace('/', '') || 'home'}`}
@@ -74,7 +74,7 @@ export function AppTopNav({
                   )}
                 >
                   {link.label}
-                </Link>
+                </TransitionLink>
               ))}
             </div>
           </div>
@@ -140,7 +140,7 @@ export function AppTopNav({
 
               {/* Nav Links */}
               {navLinks.map((link) => (
-                <Link
+                <TransitionLink
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
@@ -152,7 +152,7 @@ export function AppTopNav({
                   )}
                 >
                   {link.label}
-                </Link>
+                </TransitionLink>
               ))}
 
               {/* Task Create Modal (home + tasks page) */}

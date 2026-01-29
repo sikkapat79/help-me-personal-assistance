@@ -33,14 +33,16 @@ export default async function CalibrationPage() {
 
   return (
     <div id='calibration-page' className='space-y-8'>
-      <div>
+      <div className='view-transition-title'>
         <h1 className='text-3xl font-bold text-foreground'>Calibration</h1>
         <p className='mt-2 text-sm text-muted-foreground'>
           Configure your profile and working preferences
         </p>
       </div>
 
-      <CalibrationForm profile={profileData} />
+      <div className='view-transition-page'>
+        <CalibrationForm profile={profileData} />
+      </div>
     </div>
   );
 }

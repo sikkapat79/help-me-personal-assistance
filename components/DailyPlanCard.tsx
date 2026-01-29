@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { TransitionLink } from '@/components/TransitionLink';
 
 import { requireActiveProfileId } from '@/lib/features/profile/activeProfile';
 import { getUserProfileById } from '@/lib/features/profile/use-cases/getUserProfileById';
@@ -48,11 +48,11 @@ export async function DailyPlanCard() {
               ordering.
             </p>
           </div>
-          <Link href='/checkin'>
+          <TransitionLink href='/checkin'>
             <Button size='sm' variant='outline'>
               Adjust Check-in
             </Button>
-          </Link>
+          </TransitionLink>
         </div>
       </div>
     );
@@ -76,11 +76,11 @@ export async function DailyPlanCard() {
               suggest a simple, energy-aware order here.
             </p>
           </div>
-          <Link href='/checkin'>
+          <TransitionLink href='/checkin'>
             <Button size='sm' variant='outline'>
               Review Check-in
             </Button>
-          </Link>
+          </TransitionLink>
         </div>
       </div>
     );
@@ -105,11 +105,11 @@ export async function DailyPlanCard() {
               ).
             </p>
           </div>
-          <Link href='/checkin'>
+          <TransitionLink href='/checkin'>
             <Button size='sm' variant='outline'>
               Adjust Check-in
             </Button>
-          </Link>
+          </TransitionLink>
         </div>
 
         {plan.reasoningSummary ? (

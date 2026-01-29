@@ -63,29 +63,31 @@ export default async function TasksPage({
 
   return (
     <div id='tasks-page' className='space-y-6'>
-      <div>
+      <div className='view-transition-title'>
         <h1 className='text-3xl font-bold text-foreground'>All tasks</h1>
         <p className='mt-1 text-muted-foreground'>
           View and manage all your tasks, sorted by deadline
         </p>
       </div>
 
-      <TasksViewToggle currentView={view} />
+      <div className='view-transition-page space-y-6'>
+        <TasksViewToggle currentView={view} />
 
-      {view === 'list' ? (
-        <AllTasksList initialTasks={initialTasks} nextCursor={nextCursor} />
-      ) : (
-        <div className='space-y-6'>
-          <TasksCalendarView
-            tasks={tasksWithDue}
-            initialDate={calendarDate}
-            timeZone={timeZone}
-            todayYyyyMmDd={todayYyyyMmDd}
-            todayRankedIds={todayRankedIds}
-          />
-          <NoDateSection tasks={tasksNoDate} />
-        </div>
-      )}
+        {view === 'list' ? (
+          <AllTasksList initialTasks={initialTasks} nextCursor={nextCursor} />
+        ) : (
+          <div className='space-y-6'>
+            <TasksCalendarView
+              tasks={tasksWithDue}
+              initialDate={calendarDate}
+              timeZone={timeZone}
+              todayYyyyMmDd={todayYyyyMmDd}
+              todayRankedIds={todayRankedIds}
+            />
+            <NoDateSection tasks={tasksNoDate} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

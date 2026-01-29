@@ -38,17 +38,19 @@ export default async function CheckInPage() {
 
   return (
     <div id='checkin-page' className='space-y-8'>
-      <div>
+      <div className='view-transition-title'>
         <h1 className='text-3xl font-bold text-foreground'>Morning Check-in</h1>
         <p className='mt-2 text-sm text-muted-foreground'>
           Set your energy plan for today based on your rest and mood
         </p>
       </div>
 
-      <MorningCheckInForm
-        existingCheckIn={existingCheckIn}
-        checkInDate={today}
-      />
+      <div className='view-transition-page'>
+        <MorningCheckInForm
+          existingCheckIn={existingCheckIn}
+          checkInDate={today}
+        />
+      </div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { TransitionLink } from '@/components/TransitionLink';
 import { Button } from '@/components/ui/button';
 import { getMorningMoodDisplay } from '@/lib/features/checkin/morningMoodDisplay';
 import { DailyCheckInData } from '@/lib/features/checkin/types';
@@ -33,11 +33,11 @@ export function CheckInStatusCard({
               started.
             </p>
           </div>
-          <Link href='/checkin'>
+          <TransitionLink href='/checkin'>
             <Button size='sm' variant='default'>
               Check In
             </Button>
-          </Link>
+          </TransitionLink>
         </div>
       </div>
     );
@@ -69,11 +69,11 @@ export function CheckInStatusCard({
             </div>
           </div>
         </div>
-        <Link href='/checkin'>
+        <TransitionLink href='/checkin'>
           <Button size='sm' variant='outline'>
             Edit
           </Button>
-        </Link>
+        </TransitionLink>
       </div>
     </div>
   );
