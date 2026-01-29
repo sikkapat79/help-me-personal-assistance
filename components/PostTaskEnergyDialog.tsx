@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { MorningMood } from '@/lib/features/checkin/schema';
+import { getMorningMoodDisplay } from '@/lib/features/checkin/morningMoodDisplay';
 
 export type PostTaskEnergyChoice = MorningMood | 'Skip';
 
@@ -44,7 +45,15 @@ export function PostTaskEnergyDialog({
             disabled={isPending}
             onClick={() => onSelect(MorningMood.Fresh)}
           >
-            Still fresh
+            {getMorningMoodDisplay(MorningMood.Fresh)}
+          </Button>
+          <Button
+            variant='secondary'
+            className='w-full justify-start'
+            disabled={isPending}
+            onClick={() => onSelect(MorningMood.Neutral)}
+          >
+            {getMorningMoodDisplay(MorningMood.Neutral)}
           </Button>
           <Button
             variant='secondary'
@@ -52,7 +61,7 @@ export function PostTaskEnergyDialog({
             disabled={isPending}
             onClick={() => onSelect(MorningMood.Tired)}
           >
-            Tired
+            {getMorningMoodDisplay(MorningMood.Tired)}
           </Button>
           <Button
             variant='secondary'
@@ -60,7 +69,7 @@ export function PostTaskEnergyDialog({
             disabled={isPending}
             onClick={() => onSelect(MorningMood.Taxed)}
           >
-            Taxed
+            {getMorningMoodDisplay(MorningMood.Taxed)}
           </Button>
           <Button
             variant='ghost'

@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useTransition, useOptimistic } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Pencil } from 'lucide-react';
 import type { TaskData } from '@/lib/features/tasks/types';
 import { TaskIntensity, TaskStatus } from '@/lib/features/tasks/schema';
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { updateTaskStatusAction } from '@/app/_actions/update-task-status';
 import { completeTaskWithEnergyAction } from '@/app/_actions/complete-task-with-energy';
@@ -11,6 +12,7 @@ import {
   PostTaskEnergyDialog,
   type PostTaskEnergyChoice,
 } from '@/components/PostTaskEnergyDialog';
+import { TaskFormModal } from '@/components/TaskFormModal';
 import { useToast } from '@/lib/hooks/use-toast';
 
 function IntensityBadge({ intensity }: Readonly<{ intensity: TaskIntensity }>) {
@@ -75,6 +77,7 @@ export function TaskCard({
   reasoning,
 }: Readonly<{ task: TaskData; priorityIndex?: number; reasoning?: string }>) {
   const [openEnergyDialog, setOpenEnergyDialog] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [optimisticStatus, setOptimisticStatus] = useOptimistic(
     task.status,
@@ -146,6 +149,12 @@ export function TaskCard({
 
   return (
     <>
+      <TaskFormModal
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        mode='edit'
+        task={task}
+      />
       <PostTaskEnergyDialog
         open={openEnergyDialog}
         onOpenChange={setOpenEnergyDialog}
@@ -218,6 +227,16 @@ export function TaskCard({
               </div>
             )}
           </div>
+          <Button
+            type='button'
+            variant='ghost'
+            size='icon'
+            className='shrink-0'
+            aria-label='Edit task'
+            onClick={() => setEditOpen(true)}
+          >
+            <Pencil className='h-4 w-4' aria-hidden />
+          </Button>
         </div>
       </div>
     </>

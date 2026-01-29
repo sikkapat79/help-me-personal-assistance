@@ -15,6 +15,8 @@ export interface InvokeBedrockOptions {
   messages: BedrockMessage[];
   systemPrompt?: string;
   maxTokens?: number;
+  /** 0–1. Lower = more deterministic (good for planning/reasoning). Default 0.3. */
+  temperature?: number;
 }
 
 export interface BedrockResponse {
@@ -31,6 +33,7 @@ export async function invokeBedrock(
   const payload = {
     anthropic_version: 'bedrock-2023-05-31',
     max_tokens: options.maxTokens ?? 1000,
+    temperature: options.temperature ?? 0.3,
     messages: options.messages.map((msg) => ({
       role: msg.role,
       content: msg.content,

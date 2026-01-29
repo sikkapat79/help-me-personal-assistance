@@ -1,7 +1,7 @@
 import { TaskIntensity } from '@/lib/features/tasks/schema';
 import { MorningMood } from './schema';
 
-/** Post-task capacity state (reuse MorningMood: Fresh / Tired / Taxed). */
+/** Post-task capacity state (reuse MorningMood: Fresh / Neutral / Tired / Taxed). */
 export type CapacityStateAfter = MorningMood;
 
 const BASE_COST: Record<TaskIntensity, number> = {
@@ -13,6 +13,7 @@ const BASE_COST: Record<TaskIntensity, number> = {
 
 const MULTIPLIER: Record<CapacityStateAfter, number> = {
   [MorningMood.Fresh]: 0.8,
+  [MorningMood.Neutral]: 1,
   [MorningMood.Tired]: 1,
   [MorningMood.Taxed]: 1.2,
 };

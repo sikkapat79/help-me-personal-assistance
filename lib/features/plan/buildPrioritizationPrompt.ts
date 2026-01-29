@@ -14,6 +14,7 @@ export interface CheckInForPrompt {
   restQuality1to10: number;
   morningMood: string;
   energyBudget: number;
+  sleepNotes?: string | null;
 }
 
 const SYSTEM_PROMPT = `You are HelpMe's planning assistant. The user's energy is a currency; respect today's energy budget and mood when ordering tasks.
@@ -39,10 +40,14 @@ export function buildPrioritizationPrompt(
 ): PrioritizationPrompt {
   const profileContext = toProfilePromptContext(profile);
 
+  const sleepNotesLine =
+    checkIn.sleepNotes?.trim() != null && checkIn.sleepNotes.trim() !== ''
+      ? `\n- Sleep notes: ${checkIn.sleepNotes.trim()}`
+      : '';
   const checkInBlock = `Today's check-in (plan date: ${checkIn.planDate}):
 - Rest quality (1-10): ${checkIn.restQuality1to10}
 - Morning mood: ${checkIn.morningMood}
-- Energy budget (points): ${checkIn.energyBudget}`;
+- Energy budget (points): ${checkIn.energyBudget}${sleepNotesLine}`;
 
   const taskLines = tasks.map((t) => {
     const dueStr = t.dueAt ? t.dueAt.toISOString() : 'none';

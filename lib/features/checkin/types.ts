@@ -9,6 +9,7 @@ export interface DailyCheckInData {
   restQuality1to10: number;
   morningMood: MorningMood;
   energyBudget: number;
+  sleepNotes: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -1,14 +1,17 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { completeTaskWithEnergySchema } from '@/lib/features/checkin/schema';
+import {
+  completeTaskWithEnergySchema,
+  type MorningMood,
+} from '@/lib/features/checkin/schema';
 import { completeTaskWithEnergyFeedback } from '@/lib/features/tasks/use-cases/completeTaskWithEnergyFeedback';
 import { Result } from '@/lib/result';
 import { AppError } from '@/lib/errors';
 
 export async function completeTaskWithEnergyAction(
   taskId: string,
-  capacityStateAfter: 'Fresh' | 'Tired' | 'Taxed',
+  capacityStateAfter: MorningMood,
 ): Promise<Result<{ success: boolean; energyNotTracked?: boolean }, AppError>> {
   const parsed = completeTaskWithEnergySchema.safeParse({
     taskId,

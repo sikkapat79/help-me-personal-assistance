@@ -81,6 +81,21 @@ export class Task {
     this.updatedAt = new Date();
   }
 
+  updateDetails(details: {
+    title: string;
+    description: string | null;
+    intensity: TaskIntensity;
+    dueAt: Date | null;
+    tags: string[];
+  }): void {
+    this.title = Task.normalizeTitle(details.title);
+    this.description = details.description ?? null;
+    this.intensity = details.intensity ?? TaskIntensity.QuickWin;
+    this.dueAt = details.dueAt ?? null;
+    this.tags = details.tags ?? [];
+    this.updatedAt = new Date();
+  }
+
   private static normalizeTitle(value: string): string {
     const trimmed = value.trim();
     if (!trimmed) throw new Error('Task title is required');
