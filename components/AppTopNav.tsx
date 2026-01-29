@@ -17,6 +17,7 @@ interface NavLink {
 const navLinks: NavLink[] = [
   { href: '/', label: 'Today' },
   { href: '/tasks', label: 'Tasks' },
+  { href: '/trends', label: 'Trends' },
   { href: '/calibration', label: 'Calibration' },
 ];
 

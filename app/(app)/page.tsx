@@ -1,8 +1,10 @@
+import dayjs from 'dayjs';
 import { TaskList } from '@/components/TaskList';
 import { TodayTasksSection } from '@/components/TodayTasksSection';
 import { DonePanel } from '@/components/DonePanel';
 import { CheckInStatusCard } from '@/components/CheckInStatusCard';
 import { DailyPlanCard } from '@/components/DailyPlanCard';
+import { YesterdaySummaryCard } from '@/components/YesterdaySummaryCard';
 import { requireActiveProfileId } from '@/lib/features/profile/activeProfile';
 import { getUserProfileById } from '@/lib/features/profile/use-cases/getUserProfileById';
 import { getDailyCheckInForDate } from '@/lib/features/checkin/use-cases/getDailyCheckInForDate';
@@ -27,7 +29,12 @@ export default async function HomePage() {
   const profile = profileResult.ok ? profileResult.data : null;
   const timeZone = profile?.timeZone ?? 'UTC';
   const today = getYyyyMmDdInTimeZone(timeZone);
-  const checkInResult = await getDailyCheckInForDate(profileId, today);
+  const yesterday = dayjs(today).subtract(1, 'day').format('YYYY-MM-DD');
+
+  const [checkInResult, yesterdayCheckInResult] = await Promise.all([
+    getDailyCheckInForDate(profileId, today),
+    getDailyCheckInForDate(profileId, yesterday),
+  ]);
 
   // Check if it's past the poke time (only show reminder after 08:00 local time)
   const isPastPokeTime =
@@ -44,10 +51,21 @@ export default async function HomePage() {
       morningMood: checkInResult.data.morningMood,
       energyBudget: checkInResult.data.energyBudget,
       sleepNotes: checkInResult.data.sleepNotes ?? null,
+      eveningSummary: checkInResult.data.eveningSummary ?? null,
       createdAt: checkInResult.data.createdAt,
       updatedAt: checkInResult.data.updatedAt,
     };
   }
+
+  const yesterdayCheckIn =
+    yesterdayCheckInResult.ok && yesterdayCheckInResult.data
+      ? yesterdayCheckInResult.data
+      : null;
+  const yesterdaySummary = yesterdayCheckIn?.eveningSummary?.trim() ?? null;
+  const showFallbackButton =
+    !!yesterdayCheckIn &&
+    (yesterdayCheckIn.eveningSummary == null ||
+      yesterdayCheckIn.eveningSummary.trim() === '');
 
   return (
     <div id='home-page' className='space-y-8'>
@@ -61,6 +79,12 @@ export default async function HomePage() {
       <CheckInStatusCard
         checkIn={todayCheckIn}
         shouldShowReminder={isPastPokeTime ?? false}
+      />
+
+      <YesterdaySummaryCard
+        yesterdaySummary={yesterdaySummary}
+        yesterdayYyyyMmDd={yesterday}
+        showFallbackButton={showFallbackButton}
       />
 
       <DailyPlanCard />

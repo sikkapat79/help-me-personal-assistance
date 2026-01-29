@@ -30,6 +30,7 @@ export default async function CheckInPage() {
       morningMood: checkInResult.data.morningMood,
       energyBudget: checkInResult.data.energyBudget,
       sleepNotes: checkInResult.data.sleepNotes ?? null,
+      eveningSummary: checkInResult.data.eveningSummary ?? null,
       createdAt: checkInResult.data.createdAt,
       updatedAt: checkInResult.data.updatedAt,
     };

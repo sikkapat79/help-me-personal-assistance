@@ -54,6 +54,21 @@ export function getTodayStartEndInTimeZone(timeZone: string): {
 }
 
 /**
+ * Get start and end of a given date (YYYY-MM-DD) in the given timezone.
+ * Use for DB range queries (e.g. tasks completed on that date).
+ */
+export function getDateStartEndInTimeZone(
+  timeZone: string,
+  yyyyMmDd: string,
+): { start: Date; end: Date } {
+  const tz = safeTimeZoneOrUtc(timeZone);
+  const d = dayjs.tz(yyyyMmDd, tz);
+  const start = d.startOf('day').toDate();
+  const end = d.endOf('day').toDate();
+  return { start, end };
+}
+
+/**
  * Whether a due date falls on or before today (YYYY-MM-DD) in the given timezone.
  * Use for "today + overdue" filtering. Callers must exclude dueAt == null.
  */
