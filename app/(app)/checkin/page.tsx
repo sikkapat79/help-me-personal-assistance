@@ -1,40 +1,29 @@
-import { TaskList } from '@/components/TaskList';
-import { CheckInStatusCard } from '@/components/CheckInStatusCard';
 import { requireActiveProfileId } from '@/lib/features/profile/activeProfile';
 import { getUserProfileById } from '@/lib/features/profile/use-cases/getUserProfileById';
 import { getDailyCheckInForDate } from '@/lib/features/checkin/use-cases/getDailyCheckInForDate';
+import { MorningCheckInForm } from './_components/MorningCheckInForm';
 import { DailyCheckInData } from '@/lib/features/checkin/types';
-import {
-  getYyyyMmDdInTimeZone,
-  getMinutesSinceMidnightInTimeZone,
-} from '@/lib/time';
+import { getYyyyMmDdInTimeZone } from '@/lib/time';
 
 export const dynamic = 'force-dynamic';
 
-export default async function HomePage() {
-  // Require active profile, redirects to /select-profile if missing
+export default async function CheckInPage() {
   const profileId = await requireActiveProfileId();
   const profileResult = await getUserProfileById(profileId);
-
-  const profileName = profileResult.ok
-    ? profileResult.data.displayName
-    : 'User';
 
   // Get today's date in the user's timezone
   const profile = profileResult.ok ? profileResult.data : null;
   const timeZone = profile?.timeZone ?? 'UTC';
   const today = getYyyyMmDdInTimeZone(timeZone);
+
+  // Fetch existing check-in for today (if any)
   const checkInResult = await getDailyCheckInForDate(profileId, today);
 
-  // Check if it's past the poke time (only show reminder after 08:00 local time)
-  const isPastPokeTime =
-    profile &&
-    getMinutesSinceMidnightInTimeZone(timeZone) >=
-      profile.morningPokeTimeMinutes;
+  let existingCheckIn: DailyCheckInData | null = null;
 
-  let todayCheckIn: DailyCheckInData | null = null;
   if (checkInResult.ok && checkInResult.data) {
-    todayCheckIn = {
+    // Convert entity to plain object for client component
+    existingCheckIn = {
       id: checkInResult.data.id,
       checkInDate: checkInResult.data.checkInDate,
       restQuality1to10: checkInResult.data.restQuality1to10,
@@ -46,20 +35,18 @@ export default async function HomePage() {
   }
 
   return (
-    <div id='home-page' className='space-y-6'>
+    <div id='checkin-page' className='space-y-6'>
       <div>
-        <h1 className='text-3xl font-bold text-foreground'>
-          Welcome back, {profileName}.
-        </h1>
-        <p className='text-muted-foreground mt-1'>Your tasks for today</p>
+        <h1 className='text-3xl font-bold text-foreground'>Morning Check-in</h1>
+        <p className='mt-2 text-sm text-muted-foreground'>
+          Set your energy plan for today based on your rest and mood
+        </p>
       </div>
 
-      <CheckInStatusCard
-        checkIn={todayCheckIn}
-        shouldShowReminder={isPastPokeTime ?? false}
+      <MorningCheckInForm
+        existingCheckIn={existingCheckIn}
+        checkInDate={today}
       />
-
-      <TaskList />
     </div>
   );
 }

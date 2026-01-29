@@ -20,7 +20,7 @@ export const createUserProfileSchema = z.object({
     .trim()
     .min(1, 'Role is required')
     .max(100, 'Role is too long'),
-  bio: zOptionalStringToNull().transform((val) => val ?? null),
+  bio: zOptionalStringToNull().transform((val: string | null) => val ?? null),
   workingStartMinutes: z
     .number()
     .int()
@@ -32,6 +32,18 @@ export const createUserProfileSchema = z.object({
     .min(0, 'Working end must be between 0 and 1439')
     .max(1439, 'Working end must be between 0 and 1439'),
   primaryFocusPeriod: z.nativeEnum(PrimaryFocusPeriod),
+  timeZone: z
+    .string()
+    .trim()
+    .min(1, 'Time zone is required')
+    .max(64, 'Time zone is too long')
+    .default('UTC'),
+  morningPokeTimeMinutes: z.coerce
+    .number()
+    .int()
+    .min(0, 'Morning poke time must be between 0 and 1439')
+    .max(1439, 'Morning poke time must be between 0 and 1439')
+    .default(480),
 });
 
 // Zod schema for updating a user profile
@@ -49,7 +61,7 @@ export const updateUserProfileSchema = z.object({
     .max(100, 'Role is too long')
     .optional(),
   bio: zOptionalStringToNull()
-    .transform((val) => val ?? null)
+    .transform((val: string | null) => val ?? null)
     .optional(),
   workingStartMinutes: z
     .number()
@@ -64,6 +76,18 @@ export const updateUserProfileSchema = z.object({
     .max(1439, 'Working end must be between 0 and 1439')
     .optional(),
   primaryFocusPeriod: z.nativeEnum(PrimaryFocusPeriod).optional(),
+  timeZone: z
+    .string()
+    .trim()
+    .min(1, 'Time zone is required')
+    .max(64, 'Time zone is too long')
+    .optional(),
+  morningPokeTimeMinutes: z.coerce
+    .number()
+    .int()
+    .min(0, 'Morning poke time must be between 0 and 1439')
+    .max(1439, 'Morning poke time must be between 0 and 1439')
+    .optional(),
 });
 
 export type CreateUserProfileInput = z.infer<typeof createUserProfileSchema>;

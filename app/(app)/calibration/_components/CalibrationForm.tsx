@@ -11,7 +11,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useToast } from '@/lib/hooks/use-toast';
+import { COMMON_TIMEZONES } from '@/lib/features/profile/timezones';
 
 interface CalibrationFormProps {
   readonly profile: UserProfileData;
@@ -22,6 +30,7 @@ export function CalibrationForm({ profile }: CalibrationFormProps) {
   const [state, formAction] = useActionState(updateProfileAction, null);
   const toast = useToast();
   const lastSuccessRef = useRef<boolean>(false);
+  const [timeZone, setTimeZone] = React.useState<string>(profile.timeZone);
 
   useEffect(() => {
     if (!state) return;
@@ -65,6 +74,16 @@ export function CalibrationForm({ profile }: CalibrationFormProps) {
     if (workingEndTime) {
       const [endHours, endMinutes] = workingEndTime.split(':').map(Number);
       formData.set('workingEndMinutes', String(endHours * 60 + endMinutes));
+    }
+
+    // Convert morning poke time (HH:MM) to minutes since midnight
+    const morningPokeTime = formData.get('morningPokeTime') as string;
+    if (morningPokeTime) {
+      const [pokeHours, pokeMinutes] = morningPokeTime.split(':').map(Number);
+      formData.set(
+        'morningPokeTimeMinutes',
+        String(pokeHours * 60 + pokeMinutes),
+      );
     }
 
     startTransition(() => {
@@ -235,6 +254,78 @@ export function CalibrationForm({ profile }: CalibrationFormProps) {
                     Noon Focus
                   </label>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Timezone & Reminder Settings Section */}
+          <div className='mt-6 border-t border-border pt-6'>
+            <h3 className='text-lg font-semibold text-card-foreground'>
+              Timezone & Reminder Settings
+            </h3>
+
+            <div className='mt-4 space-y-4'>
+              {/* Timezone */}
+              <div>
+                <Label htmlFor='timeZone' className='text-sm font-medium'>
+                  Timezone
+                </Label>
+                <p className='mt-1 text-xs text-muted-foreground'>
+                  Your local timezone for accurate date calculations and
+                  reminders
+                </p>
+                <input type='hidden' name='timeZone' value={timeZone} />
+                <Select value={timeZone} onValueChange={setTimeZone} required>
+                  <SelectTrigger id='timeZone' className='mt-2'>
+                    <SelectValue placeholder='Select timezone' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {COMMON_TIMEZONES.map((tz) => (
+                      <SelectItem key={tz.value} value={tz.value}>
+                        {tz.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {state &&
+                  !state.ok &&
+                  state.error.code === 'VALIDATION_ERROR' && (
+                    <p className='mt-1 text-sm text-red-600'>
+                      {/* @ts-expect-error - error cause structure */}
+                      {state.error.cause?.timeZone?.[0]}
+                    </p>
+                  )}
+              </div>
+
+              {/* Morning Poke Time */}
+              <div>
+                <Label
+                  htmlFor='morningPokeTime'
+                  className='text-sm font-medium'
+                >
+                  Morning Reminder Time
+                </Label>
+                <p className='mt-1 text-xs text-muted-foreground'>
+                  When to show the morning check-in reminder (local time)
+                </p>
+                <Input
+                  id='morningPokeTime'
+                  name='morningPokeTime'
+                  type='time'
+                  defaultValue={formatTimeFromMinutes(
+                    profile.morningPokeTimeMinutes,
+                  )}
+                  className='mt-2'
+                  required
+                />
+                {state &&
+                  !state.ok &&
+                  state.error.code === 'VALIDATION_ERROR' && (
+                    <p className='mt-1 text-sm text-red-600'>
+                      {/* @ts-expect-error - error cause structure */}
+                      {state.error.cause?.morningPokeTimeMinutes?.[0]}
+                    </p>
+                  )}
               </div>
             </div>
           </div>

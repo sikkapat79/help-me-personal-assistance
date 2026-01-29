@@ -7,6 +7,7 @@ import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { LogoutButton } from '@/components/LogoutButton';
 import { TaskCreateModal } from '@/components/TaskCreateModal';
+import { EnergyBar } from '@/components/EnergyBar';
 
 interface NavLink {
   href: string;
@@ -20,9 +21,10 @@ const navLinks: NavLink[] = [
 
 interface AppTopNavProps {
   readonly profileName: string | null;
+  readonly energyBudget?: number | null;
 }
 
-export function AppTopNav({ profileName }: AppTopNavProps) {
+export function AppTopNav({ profileName, energyBudget }: AppTopNavProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
@@ -78,6 +80,9 @@ export function AppTopNav({ profileName }: AppTopNavProps) {
                 {profileName}
               </span>
             )}
+
+            {/* Energy Bar */}
+            <EnergyBar energyBudget={energyBudget ?? null} />
 
             {/* Task Create Modal (only on home page) */}
             {pathname === '/' && (

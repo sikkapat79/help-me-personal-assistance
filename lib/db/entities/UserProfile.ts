@@ -25,6 +25,12 @@ export class UserProfile {
   @Column({ type: 'varchar', length: 50, name: 'primary_focus_period' })
   primaryFocusPeriod!: PrimaryFocusPeriod;
 
+  @Column({ type: 'varchar', length: 64, name: 'time_zone' })
+  timeZone!: string;
+
+  @Column({ type: 'integer', name: 'morning_poke_time_minutes' })
+  morningPokeTimeMinutes!: number;
+
   @Column({ type: 'timestamptz', name: 'created_at' })
   createdAt!: Date;
 
@@ -38,6 +44,8 @@ export class UserProfile {
     workingStartMinutes: number;
     workingEndMinutes: number;
     primaryFocusPeriod: PrimaryFocusPeriod;
+    timeZone?: string;
+    morningPokeTimeMinutes?: number;
   }) {
     if (data) {
       this.displayName = UserProfile.normalizeDisplayName(data.displayName);
@@ -46,6 +54,10 @@ export class UserProfile {
       this.workingStartMinutes = data.workingStartMinutes;
       this.workingEndMinutes = data.workingEndMinutes;
       this.primaryFocusPeriod = data.primaryFocusPeriod;
+      this.timeZone = UserProfile.normalizeTimeZone(data.timeZone ?? 'UTC');
+      this.morningPokeTimeMinutes = UserProfile.normalizeMinutesSinceMidnight(
+        data.morningPokeTimeMinutes ?? 480,
+      );
 
       // Explicitly set timestamps for new entities
       const now = new Date();
@@ -62,6 +74,8 @@ export class UserProfile {
     workingStartMinutes?: number;
     workingEndMinutes?: number;
     primaryFocusPeriod?: PrimaryFocusPeriod;
+    timeZone?: string;
+    morningPokeTimeMinutes?: number;
   }): void {
     if (data.displayName !== undefined) {
       this.displayName = UserProfile.normalizeDisplayName(data.displayName);
@@ -80,6 +94,14 @@ export class UserProfile {
     }
     if (data.primaryFocusPeriod !== undefined) {
       this.primaryFocusPeriod = data.primaryFocusPeriod;
+    }
+    if (data.timeZone !== undefined) {
+      this.timeZone = UserProfile.normalizeTimeZone(data.timeZone);
+    }
+    if (data.morningPokeTimeMinutes !== undefined) {
+      this.morningPokeTimeMinutes = UserProfile.normalizeMinutesSinceMidnight(
+        data.morningPokeTimeMinutes,
+      );
     }
 
     // Domain model controls its own timestamp
@@ -100,5 +122,22 @@ export class UserProfile {
     if (trimmed.length > 100)
       throw new Error('Role is too long (max 100 characters)');
     return trimmed;
+  }
+
+  private static normalizeTimeZone(value: string): string {
+    const trimmed = value.trim();
+    if (!trimmed) throw new Error('Time zone is required');
+    if (trimmed.length > 64) throw new Error('Time zone is too long');
+    return trimmed;
+  }
+
+  private static normalizeMinutesSinceMidnight(value: number): number {
+    if (!Number.isInteger(value)) {
+      throw new TypeError('Poke time must be an integer number of minutes');
+    }
+    if (value < 0 || value > 1439) {
+      throw new Error('Poke time must be between 0 and 1439 minutes');
+    }
+    return value;
   }
 }

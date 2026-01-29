@@ -21,6 +21,8 @@ export async function updateProfileAction(
     workingStartMinutes: formData.get('workingStartMinutes'),
     workingEndMinutes: formData.get('workingEndMinutes'),
     primaryFocusPeriod: formData.get('primaryFocusPeriod'),
+    timeZone: formData.get('timeZone'),
+    morningPokeTimeMinutes: formData.get('morningPokeTimeMinutes'),
   };
 
   // Parse and validate
@@ -35,6 +37,10 @@ export async function updateProfileAction(
       ? Number(rawData.workingEndMinutes)
       : undefined,
     primaryFocusPeriod: rawData.primaryFocusPeriod,
+    timeZone: rawData.timeZone,
+    morningPokeTimeMinutes: rawData.morningPokeTimeMinutes
+      ? Number(rawData.morningPokeTimeMinutes)
+      : undefined,
   });
 
   if (!parsed.success) {

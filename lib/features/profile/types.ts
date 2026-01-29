@@ -9,6 +9,8 @@ export interface UserProfileData {
   workingStartMinutes: number;
   workingEndMinutes: number;
   primaryFocusPeriod: PrimaryFocusPeriod;
+  timeZone: string;
+  morningPokeTimeMinutes: number;
   createdAt: Date;
   updatedAt: Date;
 }
