@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition, useOptimistic } from 'react';
+import { Loader2 } from 'lucide-react';
 import type { TaskData } from '@/lib/features/tasks/types';
 import { TaskIntensity, TaskStatus } from '@/lib/features/tasks/schema';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -190,6 +191,12 @@ export function TaskCard({
               </p>
             )}
             <div className='mt-3 flex flex-wrap items-center gap-2'>
+              {isPending && (
+                <span className='inline-flex items-center gap-1.5 text-xs text-muted-foreground'>
+                  <Loader2 className='h-3 w-3 animate-spin' aria-hidden />
+                  <span>Saving...</span>
+                </span>
+              )}
               <IntensityBadge intensity={task.intensity} />
               <StatusBadge status={optimisticStatus} />
               {task.dueAt && (

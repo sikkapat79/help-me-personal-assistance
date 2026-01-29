@@ -20,7 +20,7 @@ export function CheckInStatusCard({
     return (
       <div
         id='checkin-status-card'
-        className='rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950'
+        className='rounded-lg border border-amber-200 bg-amber-50 p-4 transition-shadow hover:shadow-md dark:border-amber-900 dark:bg-amber-950'
       >
         <div className='flex items-center justify-between'>
           <div>
@@ -46,7 +46,7 @@ export function CheckInStatusCard({
   return (
     <div
       id='checkin-status-card'
-      className='rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950'
+      className='rounded-lg border border-green-200 bg-green-50 p-4 transition-shadow hover:shadow-md dark:border-green-900 dark:bg-green-950'
     >
       <div className='flex items-start justify-between'>
         <div className='flex-1'>

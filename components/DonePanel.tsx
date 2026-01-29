@@ -51,7 +51,7 @@ export async function DonePanel() {
         </span>
       </h2>
       {plainTasks.length === 0 ? (
-        <p className='rounded-lg border border-dashed border-zinc-200 bg-zinc-50 px-4 py-6 text-center text-sm text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400'>
+        <p className='rounded-xl border border-dashed border-zinc-200 bg-zinc-50 px-4 py-6 text-center text-sm text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400'>
           No tasks completed yet today.
         </p>
       ) : (
