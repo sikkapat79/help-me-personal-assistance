@@ -27,6 +27,9 @@ export class DailyPlan {
   @Column({ type: 'jsonb', name: 'task_reasoning' })
   taskReasoning!: Record<string, string>;
 
+  @Column({ type: 'text', name: 'reasoning_summary', nullable: true })
+  reasoningSummary!: string | null;
+
   @Column({ type: 'timestamptz', name: 'created_at' })
   createdAt!: Date;
 
@@ -40,6 +43,7 @@ export class DailyPlan {
     algorithmVersion: string;
     rankedTaskIds: string[];
     taskReasoning: Record<string, string>;
+    reasoningSummary?: string | null;
   }) {
     if (data) {
       this.id = uuidv7();
@@ -49,6 +53,7 @@ export class DailyPlan {
       this.algorithmVersion = data.algorithmVersion;
       this.rankedTaskIds = data.rankedTaskIds;
       this.taskReasoning = data.taskReasoning;
+      this.reasoningSummary = data.reasoningSummary ?? null;
 
       const now = new Date();
       this.createdAt = now;
@@ -61,6 +66,7 @@ export class DailyPlan {
     algorithmVersion?: string;
     rankedTaskIds?: string[];
     taskReasoning?: Record<string, string>;
+    reasoningSummary?: string | null;
   }): void {
     if (data.energyBudget !== undefined) {
       this.energyBudget = data.energyBudget;
@@ -73,6 +79,9 @@ export class DailyPlan {
     }
     if (data.taskReasoning !== undefined) {
       this.taskReasoning = data.taskReasoning;
+    }
+    if (data.reasoningSummary !== undefined) {
+      this.reasoningSummary = data.reasoningSummary;
     }
 
     this.updatedAt = new Date();

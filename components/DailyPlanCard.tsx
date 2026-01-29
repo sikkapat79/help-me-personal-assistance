@@ -101,8 +101,8 @@ export async function DailyPlanCard() {
             </h3>
             <p className='mt-1 text-sm text-blue-800 dark:text-blue-200'>
               Based on your morning check-in and today&apos;s energy budget (
-              <span className='font-semibold'>{plan.energyBudget}</span>{' '}
-              points).
+              <span className='font-semibold'>{plan.energyBudget} points</span>
+              ).
             </p>
           </div>
           <Link href='/checkin'>
@@ -112,40 +112,17 @@ export async function DailyPlanCard() {
           </Link>
         </div>
 
-        <ol className='mt-1 space-y-2 text-sm text-blue-900 dark:text-blue-100'>
-          {plan.rankedTaskIds.map((taskId, index) => {
-            const reasoning = plan.taskReasoning[taskId];
-            return (
-              <li
-                key={taskId}
-                className='flex gap-3 rounded-md bg-blue-100/70 px-3 py-2 dark:bg-blue-900/60'
-              >
-                <span className='mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white'>
-                  {index + 1}
-                </span>
-                <div className='flex-1'>
-                  <div className='text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-200'>
-                    Task ID
-                  </div>
-                  <div className='text-xs font-mono break-all text-blue-900 dark:text-blue-50'>
-                    {taskId}
-                  </div>
-                  {reasoning && (
-                    <p className='mt-1 text-xs text-blue-800 dark:text-blue-100'>
-                      {reasoning}
-                    </p>
-                  )}
-                </div>
-              </li>
-            );
-          })}
-        </ol>
-
-        <p className='mt-1 text-xs text-blue-800/80 dark:text-blue-200/80'>
-          This ordering is deterministic and energy-aware (algorithm{' '}
-          {plan.algorithmVersion}). Use it as guidance — you&apos;re always in
-          control.
-        </p>
+        {plan.reasoningSummary ? (
+          <p className='text-sm text-blue-900 dark:text-blue-100'>
+            {plan.reasoningSummary}
+          </p>
+        ) : (
+          <p className='text-xs text-blue-800/80 dark:text-blue-200/80'>
+            This ordering is deterministic and energy-aware (algorithm{' '}
+            {plan.algorithmVersion}). Use it as guidance — you&apos;re always in
+            control.
+          </p>
+        )}
       </div>
     </div>
   );

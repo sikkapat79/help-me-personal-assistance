@@ -68,7 +68,11 @@ function StatusBadge({ status }: Readonly<{ status: TaskStatus }>) {
   );
 }
 
-export function TaskCard({ task }: Readonly<{ task: TaskData }>) {
+export function TaskCard({
+  task,
+  priorityIndex,
+  reasoning,
+}: Readonly<{ task: TaskData; priorityIndex?: number; reasoning?: string }>) {
   const [openEnergyDialog, setOpenEnergyDialog] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [optimisticStatus, setOptimisticStatus] = useOptimistic(
@@ -159,6 +163,14 @@ export function TaskCard({ task }: Readonly<{ task: TaskData }>) {
             disabled={isPending}
             className='mt-1'
           />
+          {priorityIndex != null && (
+            <span
+              className='mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-xs font-medium text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300'
+              aria-label={`Priority ${priorityIndex}`}
+            >
+              {priorityIndex}
+            </span>
+          )}
           <div className='flex-1'>
             <h3
               className={`font-semibold text-zinc-900 dark:text-zinc-50 ${isCompleted ? 'line-through opacity-50' : ''}`}
@@ -170,6 +182,11 @@ export function TaskCard({ task }: Readonly<{ task: TaskData }>) {
                 className={`mt-1 text-sm text-zinc-600 dark:text-zinc-400 ${isCompleted ? 'line-through opacity-50' : ''}`}
               >
                 {task.description}
+              </p>
+            )}
+            {reasoning && (
+              <p className='mt-1.5 text-xs text-zinc-500 dark:text-zinc-400'>
+                {reasoning}
               </p>
             )}
             <div className='mt-3 flex flex-wrap items-center gap-2'>

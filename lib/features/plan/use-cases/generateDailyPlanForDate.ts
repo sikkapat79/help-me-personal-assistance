@@ -18,6 +18,9 @@ import {
 const ALGORITHM_VERSION_HEURISTIC = 'v1-det-heuristic';
 const ALGORITHM_VERSION_LLM = 'v2-llm';
 
+const HEURISTIC_REASONING_SUMMARY =
+  "Ordered by urgency, intensity, and energy fit. Use as guidance — you're in control.";
+
 function intensityScore(intensity: TaskIntensity): {
   base: number;
   label: string;
@@ -45,6 +48,7 @@ interface ScoredTask {
 interface LlmPrioritizationResult {
   rankedTaskIds: string[];
   taskReasoning: Record<string, string>;
+  reasoningSummary: string | null;
 }
 
 /**
@@ -119,16 +123,21 @@ async function tryLlmPrioritization(
         : 'No reasoning provided.';
   }
 
-  return { rankedTaskIds, taskReasoning };
+  return {
+    rankedTaskIds,
+    taskReasoning,
+    reasoningSummary: parsed.reasoningSummary ?? null,
+  };
 }
 
 type LlmParsedResponse = {
   rankedTaskIds: string[];
   taskReasoning: Record<string, string>;
+  reasoningSummary?: string | null;
 };
 
 /**
- * Parse LLM response into { rankedTaskIds, taskReasoning }.
+ * Parse LLM response into { rankedTaskIds, taskReasoning, reasoningSummary }.
  * Strips optional markdown code fence, then JSON.parse. Returns null on failure.
  */
 function parseLlmPrioritizationResponse(raw: string): LlmParsedResponse | null {
@@ -158,7 +167,16 @@ function parseLlmPrioritizationResponse(raw: string): LlmParsedResponse | null {
         taskReasoningStrings[k] = v;
       }
     }
-    return { rankedTaskIds, taskReasoning: taskReasoningStrings };
+    const rawSummary = obj.reasoningSummary;
+    const reasoningSummary =
+      typeof rawSummary === 'string' && rawSummary.trim()
+        ? rawSummary.trim()
+        : null;
+    return {
+      rankedTaskIds,
+      taskReasoning: taskReasoningStrings,
+      reasoningSummary,
+    };
   } catch {
     return null;
   }
@@ -236,6 +254,7 @@ export async function generateDailyPlanForDate(
     let rankedTaskIds: string[];
     let taskReasoning: Record<string, string>;
     let algorithmVersion: string;
+    let reasoningSummary: string | null;
 
     const llmResult = await tryLlmPrioritization(
       ownerId,
@@ -248,6 +267,7 @@ export async function generateDailyPlanForDate(
       rankedTaskIds = llmResult.rankedTaskIds;
       taskReasoning = llmResult.taskReasoning;
       algorithmVersion = ALGORITHM_VERSION_LLM;
+      reasoningSummary = llmResult.reasoningSummary;
     } else {
       const scored = scoreTasksDeterministically(
         tasks,
@@ -260,6 +280,7 @@ export async function generateDailyPlanForDate(
         taskReasoning[t.id] = t.reasoning;
       }
       algorithmVersion = ALGORITHM_VERSION_HEURISTIC;
+      reasoningSummary = HEURISTIC_REASONING_SUMMARY;
     }
 
     const existingPlan = await planRepo.findOne({
@@ -276,6 +297,7 @@ export async function generateDailyPlanForDate(
         algorithmVersion,
         rankedTaskIds,
         taskReasoning,
+        reasoningSummary,
       });
       await planRepo.save(existingPlan);
       return ok(existingPlan);
@@ -288,6 +310,7 @@ export async function generateDailyPlanForDate(
       algorithmVersion,
       rankedTaskIds,
       taskReasoning,
+      reasoningSummary,
     });
 
     await planRepo.save(plan);

@@ -19,9 +19,10 @@ export interface CheckInForPrompt {
 const SYSTEM_PROMPT = `You are HelpMe's planning assistant. The user's energy is a currency; respect today's energy budget and mood when ordering tasks.
 
 Output only valid JSON, no markdown or extra text. Use this exact schema:
-{ "rankedTaskIds": ["uuid1", "uuid2", ...], "taskReasoning": { "uuid1": "one sentence why", "uuid2": "..." } }
+{ "reasoningSummary": "1–3 sentences: what you recommend doing today (order, energy fit, quick wins, etc.).", "rankedTaskIds": ["uuid1", "uuid2", ...], "taskReasoning": { "uuid1": "one sentence why", "uuid2": "..." } }
 
 Rules:
+- Provide reasoningSummary: a short paragraph (1–3 sentences) summarizing what you recommend doing today—overall order, energy fit, quick wins, and any key guidance.
 - Include every task ID exactly once in rankedTaskIds, in your recommended order (first = do first).
 - Provide a brief one-sentence reasoning for each task in taskReasoning, keyed by task ID.
 - Prefer sustainable ordering: avoid stacking many deep-focus tasks when energy is low; lean on quick wins when energy is limited.`;
@@ -56,7 +57,7 @@ ${checkInBlock}
 
 ${tasksBlock}
 
-Return a single JSON object with rankedTaskIds (ordered list of task IDs) and taskReasoning (object mapping each task ID to a one-sentence reason). Output nothing else.`;
+Return a single JSON object with reasoningSummary (1–3 sentence paragraph), rankedTaskIds (ordered list of task IDs), and taskReasoning (object mapping each task ID to a one-sentence reason). Output nothing else.`;
 
   return {
     systemPrompt: SYSTEM_PROMPT,
