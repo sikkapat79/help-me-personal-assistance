@@ -1,10 +1,5 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { v7 as uuidv7 } from 'uuid';
 import { UserProfile } from './UserProfile';
 
 export enum MorningMood {
@@ -15,7 +10,7 @@ export enum MorningMood {
 
 @Entity('daily_check_in')
 export class DailyCheckIn {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn({ type: 'uuid' })
   id!: string;
 
   @ManyToOne(() => UserProfile)
@@ -48,6 +43,8 @@ export class DailyCheckIn {
     energyBudget: number;
   }) {
     if (data) {
+      // Generate UUID v7 (time-ordered) for new check-ins
+      this.id = uuidv7();
       this.owner = data.owner;
       this.checkInDate = data.checkInDate;
       this.restQuality1to10 = data.restQuality1to10;
