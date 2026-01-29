@@ -3,8 +3,8 @@
  * Mark InitialSchema migration as already executed
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 // Load .env.local
 const envPath = path.join(process.cwd(), '.env.local');

@@ -1,5 +1,7 @@
 import { TaskList } from '@/components/TaskList';
+import { DonePanel } from '@/components/DonePanel';
 import { CheckInStatusCard } from '@/components/CheckInStatusCard';
+import { DailyPlanCard } from '@/components/DailyPlanCard';
 import { requireActiveProfileId } from '@/lib/features/profile/activeProfile';
 import { getUserProfileById } from '@/lib/features/profile/use-cases/getUserProfileById';
 import { getDailyCheckInForDate } from '@/lib/features/checkin/use-cases/getDailyCheckInForDate';
@@ -59,7 +61,11 @@ export default async function HomePage() {
         shouldShowReminder={isPastPokeTime ?? false}
       />
 
+      <DailyPlanCard />
+
       <TaskList />
+
+      <DonePanel />
     </div>
   );
 }

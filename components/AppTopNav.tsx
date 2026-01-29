@@ -22,9 +22,14 @@ const navLinks: NavLink[] = [
 interface AppTopNavProps {
   readonly profileName: string | null;
   readonly energyBudget?: number | null;
+  readonly remainingEnergy?: number | null;
 }
 
-export function AppTopNav({ profileName, energyBudget }: AppTopNavProps) {
+export function AppTopNav({
+  profileName,
+  energyBudget,
+  remainingEnergy,
+}: AppTopNavProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
@@ -81,8 +86,11 @@ export function AppTopNav({ profileName, energyBudget }: AppTopNavProps) {
               </span>
             )}
 
-            {/* Energy Bar */}
-            <EnergyBar energyBudget={energyBudget ?? null} />
+            {/* Energy Bar (remaining of budget) */}
+            <EnergyBar
+              energyBudget={energyBudget ?? null}
+              remainingEnergy={remainingEnergy ?? null}
+            />
 
             {/* Task Create Modal (only on home page) */}
             {pathname === '/' && (

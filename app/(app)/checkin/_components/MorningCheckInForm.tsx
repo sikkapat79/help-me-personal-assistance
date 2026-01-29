@@ -46,23 +46,28 @@ export function MorningCheckInForm({
   useEffect(() => {
     if (!state) return;
 
-    if (state.ok) {
-      if (!lastSuccessRef.current) {
-        lastSuccessRef.current = true;
-        toast.success('Check-in saved', {
-          description: 'Your morning check-in has been recorded.',
-        });
-        // Redirect back to Today page after success
-        startTransition(() => {
-          router.push('/');
-        });
-      }
-    } else {
+    if (!state.ok) {
       lastSuccessRef.current = false;
       toast.error('Failed to save check-in', {
         description: state.formError,
       });
+      return;
     }
+
+    if (lastSuccessRef.current) {
+      return;
+    }
+
+    lastSuccessRef.current = true;
+    toast.success('Check-in saved', {
+      description: state.warning
+        ? state.warning
+        : 'Your morning check-in has been recorded.',
+    });
+    // Redirect back to Today page after success
+    startTransition(() => {
+      router.push('/');
+    });
   }, [state, toast, router]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
